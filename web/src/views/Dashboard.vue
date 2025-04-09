@@ -88,15 +88,10 @@
         <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
       </div>
       
-      <!-- Main content area (empty in screenshot) -->
+      <!-- Main content area -->
       <div class="flex-grow bg-black">
         <!-- Empty content area -->
       </div>
-      
-      <!-- Optional: bunny character from your screenshot (commented out as requested) -->
-      <!-- <div class="absolute bottom-4 right-4">
-        <img src="/assets/bunny.png" alt="Character" class="w-32 h-32">
-      </div> -->
     </div>
   </div>
 </template>
