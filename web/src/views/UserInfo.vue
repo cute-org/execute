@@ -47,19 +47,22 @@
      <div class="flex-grow"></div>
      
      <!-- Bottom buttons -->
-     <div class="h-16 w-16 flex items-center justify-center border-t border-white-800">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-       </svg>
-     </div>
-     
-     <div class="h-16 w-16 flex items-center justify-center border-t border-white-800">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-       </svg>
-     </div>
-   </div>
+      <div class="h-16 w-16 flex items-center justify-center border-t border-white-800">
+        <button @click = "openSettings = !openSettings">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      </div>
+      <div class="h-16 w-16 flex items-center justify-center border-t border-white-800">
+        <button @click = "openInfo = !openInfo">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
    
    <!-- Main content area -->
    <div class="flex-1 flex flex-col">
@@ -70,43 +73,111 @@
        </div>
      </div>
      
-     <!-- Team info section -->
-     <div class="px-16 py-6">
-       <div class="flex items-center">
-         <h2 class="text-3xl text-white font-adlam">Team 1</h2>
-         <div class="flex ml-4 -space-x-2">
-           <!-- Team elements users placeholders  -->
-           <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-black"></div>
-           <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-black"></div>
-           <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-black"></div>
-         </div>
-         <!-- Number of team members placeholder  -->
-         <div class="ml-1 px-2 py-0.5 bg-gray-500 bg-opacity-50 rounded-full text-sm text-white">+21</div>
+     <div class="flex flex-col bg-black items-center justify-center pt-[2rem]">
+       <div class ="w-48 h-48 rounded-full bg-purple-50 flex items-center justify-center overflow-hidden mb-4">
+            <!-- Content of te photo -->
        </div>
-       <!-- Points placeholder -->
-       <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
-     </div>
-     
-     <!-- Main content area -->
-     <div class="flex-grow bg-black">
-       <!-- Empty content area -->
+
+        <div class ="px-4 pt-3 bg-white-400 text-center">
+            <h1>HARDCODED Iwona</h1>
+        </div>
+        <div class ="px-4 bg-white-400 text-center">
+            <h1>Art director</h1>
+        </div>
+
+        <div class ="space-y-2 pt-4">
+          <!-- Email -->
+          <div class>
+            <span class ="text-white">Email: </span>
+            <span class ="text-white">iwona@gmail.com</span>
+          </div>
+          <!-- Phone Number -->
+          <div class>
+            <span class ="text-white">Phone: </span>
+            <span class ="text-white">000-000-000</span>
+          </div>
+          <!-- Birth date -->
+          <div class>
+            <span class ="text-white">Birth: </span>
+            <span class ="text-white">05-09-1994</span>
+          </div>
+        </div>
+        
      </div>
    </div>
  </div>
+
+ <!-- Dialog settings & design -->
+    <!-- Settings Dialog-->
+    <TransitionRoot as="template" :show="openSettings">
+      <Dialog class="relative z-10" @close="openSettings = false">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+              <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900">That is a placeholder for settings popup dialog </DialogTitle>
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500">12!21(42"/.)/[[]=->..;`~`""]</p>
+                      </div>
+                    </div>
+                  </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+    <!-- Info Dialog -->
+    <TransitionRoot as="template" :show="openInfo">
+      <Dialog class="relative z-10" @close="openInfo = false">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+              <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900">That site got created by ExeCute Organization</DialogTitle>
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500">Thank you for using it, enjoy</p>
+                      </div>
+                    </div>
+                  </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
 </template>
 
 <!-- Setting up router navigation  -->
 <script lang="ts" setup>
-   import { useRouter } from 'vue-router'
-   const router = useRouter()
-   // Setting going to Dashboard from Login screen
-   const goToCalendar = () => {
-   router.push('/calendar')
-   }
-   const goToTeamsInfo = () => {
-   router.push('/teaminfo')
-   }
-   const goToDashboard = () => {
-   router.push('/dashboard')
-   }
+  import { useRouter } from 'vue-router'
+  import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+  import { ref } from 'vue'
+
+  const router = useRouter()
+  // Setting going to Dashboard from Login screen
+  const goToCalendar = () => {
+    router.push('/calendar')
+  }
+  const goToTeamsInfo = () => {
+    router.push('/teaminfo')
+  }
+  const goToDashboard = () => {
+    router.push('/dashboard')
+  }
+
+  const openSettings = ref(false)
+  const openInfo = ref(false)
 </script>
