@@ -65,41 +65,53 @@
     </div>
    
    <!-- Main content area -->
-   <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col">
      <!-- Header bar -->
      <div class="bg-black pt-5 pb-3 px-8 border-b border-white/50 ">
        <div class="flex items-center">
          <h1 class="text-5xl font-semibold text-white font-adlam">ExeCute</h1>
        </div>
      </div>
+     <!-- Points -->
+    <div class="text-white text-xs mr-5 mt-2 px-4 py-1 ml-auto bg-infoBg rounded-xl border-borderColor border-2 border-solid ">
+      <h1 class="">Points: 1280</h1>
+    </div>
      
      <div class="flex flex-col bg-black items-center justify-center pt-[2rem]">
-       <div class ="w-48 h-48 rounded-full bg-purple-50 flex items-center justify-center overflow-hidden mb-4">
+       <div class ="w-64 h-64 rounded-full bg-purple-50 flex items-center justify-center overflow-hidden mb-4">
             <!-- Content of te photo -->
        </div>
 
-        <div class ="px-4 pt-3 bg-white-400 text-center">
-            <h1>HARDCODED Iwona</h1>
+        <div class ="flex px-8 py-4 bg-infoBg items-center justify-center text-center rounded-3xl border-borderColor border-2  border-solid">
+            <h1 class="text-[48px]">HARDCODED Iwona</h1>
         </div>
-        <div class ="px-4 bg-white-400 text-center">
-            <h1>Art director</h1>
+        <div class ="px-4 mt-[-2px] bg-infoBg text-center rounded-3xl border-borderColor border-2  border-solid">
+            <h1 class="text-[18px]">Art director</h1>
         </div>
 
-        <div class ="space-y-2 pt-4">
-          <!-- Email -->
-          <div class>
-            <span class ="text-white">Email: </span>
-            <span class ="text-white">iwona@gmail.com</span>
+        <div class ="space-y-2 mt-4 w-full max-w-xl px-6 py-12 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
+          <!-- Dots/settings -->
+          <div class="absolute top-3 right-6 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+              <circle cx="3" cy="12" r="1.5"></circle>
+              <circle cx="11" cy="12" r="1.5"></circle>
+              <circle cx="19" cy="12" r="1.5"></circle>
+            </svg>
           </div>
+          <!-- Email -->
+          <div class="w-full bg-fillingInfo rounded-xl px-6 py-2 flex relative">
+              <span class ="text-left absolute text-white">Email: </span>
+              <span class ="text-center w-full text-white">iwona@gmail.com</span>
+           </div>
           <!-- Phone Number -->
-          <div class>
-            <span class ="text-white">Phone: </span>
-            <span class ="text-white">000-000-000</span>
+          <div class="w-full bg-fillingInfo rounded-xl px-6 py-2 flex relative">
+            <span class ="text-left absolute text-white">Phone: </span>
+            <span class ="text-center w-full text-white">000-000-000</span>
           </div>
           <!-- Birth date -->
-          <div class>
-            <span class ="text-white">Birth: </span>
-            <span class ="text-white">05-09-1994</span>
+          <div class="w-full bg-fillingInfo rounded-xl px-6 py-2 flex relative">
+            <span class ="text-left absolute text-white">Birth date: </span>
+            <span class ="text-center w-full text-white">05-09-1994</span>
           </div>
         </div>
         
