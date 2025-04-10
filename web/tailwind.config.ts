@@ -5,7 +5,10 @@ export default {
       extend: {
         colors: {
           navBar: '#271834',
-          activeWindowNavBar: '#4d3168'
+          activeWindowNavBar: '#4d3168',
+          borderColor: '#3C2650',
+          fillingInfo: '#201B1B',
+          infoBg: '#100F0F'
         },
 
         spacing: {
