@@ -4,10 +4,16 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
+const (
+	argonTime    = 1         // Number of iterations
+	argonMemory  = 64 * 1024 // 64 MB of memory in KiB
+	argonThreads = 4         // Number of threads (parallelism)
+	argonKeyLen  = 32        // Length of the generated hash in bytes
+)
+
 // generatePasswordHash computes the Argon2id hash using a given password and salt
 func generatePasswordHash(password string, salt []byte) []byte {
-	// Parameters: 1 iteration, 64 MB memory, 4 threads, 32-byte key length
-	return argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
+	return argon2.IDKey([]byte(password), salt, argonTime, argonMemory, argonThreads, argonKeyLen)
 }
 
 // compareHashes performs a constant-time comparison between two Base64-encoded hash strings
