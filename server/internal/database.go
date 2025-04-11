@@ -10,9 +10,9 @@ import (
 	"github.com/lib/pq"
 )
 
-var db *sql.DB
+var DB *sql.DB
 
-func isUniqueViolation(err error) bool {
+func IsUniqueViolation(err error) bool {
 	if pgErr, ok := err.(*pq.Error); ok {
 		return pgErr.Code == "23505"
 	}
@@ -55,12 +55,12 @@ func InitDB() {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		host, port, user, password, dbname, sslmode)
 
-	db, err = sql.Open("postgres", connStr)
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("failed to open database:", err)
 	}
 
-	err = db.Ping()
+	err = DB.Ping()
 	if err != nil {
 		log.Fatal("failed to connect to the database:", err)
 	}
@@ -73,13 +73,13 @@ func InitDB() {
         passwordhash TEXT NOT NULL
     );
     `
-	_, err = db.Exec(createTable)
+	_, err = DB.Exec(createTable)
 	if err != nil {
 		log.Fatal("failed to create table:", err)
 	}
 
 	// Configure the database connection pool
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(time.Hour)
+	DB.SetMaxOpenConns(10)
+	DB.SetMaxIdleConns(5)
+	DB.SetConnMaxLifetime(time.Hour)
 }

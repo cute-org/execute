@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"execute/internal"
+	"execute/internal/handlers/auth"
+	"execute/internal/handlers/user"
+	"execute/internal/middleware"
 )
 
 func main() {
@@ -14,10 +17,10 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Wrap handlers with ApplyMiddlewares or ApplyAuthMidlewares!
-	mux.Handle("/register", internal.ApplyMiddlewares(http.HandlerFunc(internal.RegisterHandler)))
-	mux.Handle("/login", internal.ApplyMiddlewares(http.HandlerFunc(internal.LoginHandler)))
-	mux.Handle("/validate", internal.ApplyAuthMiddlewares(http.HandlerFunc(internal.ValidateHandler)))
-	mux.Handle("/users", internal.ApplyAuthMiddlewares(http.HandlerFunc(internal.UsersHandler)))
+	mux.Handle("/register", middleware.ApplyMiddlewares(http.HandlerFunc(auth.RegisterHandler)))
+	mux.Handle("/login", middleware.ApplyMiddlewares(http.HandlerFunc(auth.LoginHandler)))
+	mux.Handle("/validate", middleware.ApplyAuthMiddlewares(http.HandlerFunc(auth.ValidateHandler)))
+	mux.Handle("/users", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UsersHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)

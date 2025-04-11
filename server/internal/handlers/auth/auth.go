@@ -1,4 +1,4 @@
-package internal
+package auth
 
 import (
 	"crypto/rand"
@@ -8,6 +8,8 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+
+	"execute/internal"
 )
 
 type Credentials struct {
@@ -22,11 +24,6 @@ type Response struct {
 
 type TokenResponse struct {
 	Token string `json:"token"`
-}
-
-type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
 }
 
 // RegisterHandler handles the /register POST endpoint
@@ -69,12 +66,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Insert the user into the database and return the new user ID
 	var userID int
-	err := db.QueryRow(
+	err := internal.DB.QueryRow(
 		"INSERT INTO users(username, salt, passwordhash) VALUES ($1, $2, $3) RETURNING id",
 		creds.Username, salt, passwordHash,
 	).Scan(&userID)
 	if err != nil {
-		if isUniqueViolation(err) {
+		if internal.IsUniqueViolation(err) {
 			http.Error(w, "Username already exists", http.StatusConflict)
 		} else {
 			http.Error(w, "User creation failed: "+err.Error(), http.StatusInternalServerError)
@@ -99,50 +96,54 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var creds Credentials
 
+	// Decode JSON request
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
 		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// Validate credentials
 	if creds.Username == "" || creds.Password == "" {
 		http.Error(w, "Missing fields", http.StatusBadRequest)
 		return
 	}
 
+	// Check username and password
 	var salt, storedPasswordHash string
-	row := db.QueryRow("SELECT salt, passwordhash FROM users WHERE username = $1", creds.Username)
+	row := internal.DB.QueryRow("SELECT salt, passwordhash FROM users WHERE username = $1", creds.Username)
 	if err := row.Scan(&salt, &storedPasswordHash); err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
+	// Decode the salt
 	saltBytes, err := base64.StdEncoding.DecodeString(salt)
 	if err != nil {
 		http.Error(w, "Error decoding salt", http.StatusInternalServerError)
 		return
 	}
 
+	// Compute the hash for the password
 	computedHash := generatePasswordHash(creds.Password, saltBytes)
 	computedHashB64 := base64.StdEncoding.EncodeToString(computedHash)
 
+	// Compare the stored password hash with the computed one
 	if !compareHashes(storedPasswordHash, computedHashB64) {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
-	// Generate a new session token.
+	// Generate a new session token
 	token, err := GenerateSessionToken()
 	if err != nil {
 		http.Error(w, "Error generating session", http.StatusInternalServerError)
 		return
 	}
 
-	// Store the session token along with the username.
-	sessions.Lock()
-	sessions.m[token] = creds.Username
-	sessions.Unlock()
+	// Store the session token along with the username
+	SetSession(token, creds.Username)
 
-	// Set the session cookie with a 7 day expiration.
+	// Set the session cookie with a 7-day expiration
 	cookie := &http.Cookie{
 		Name:     "session_token",
 		Value:    token,
@@ -152,85 +153,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
+	// Respond with the session token
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(TokenResponse{Token: token})
-}
-
-// ValidateHandler handles the /validate GET endpoint to check if the session is valid
-func ValidateHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Get the session token from cookies
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			http.Error(w, "No session token found", http.StatusUnauthorized)
-			return
-		}
-		http.Error(w, "Error retrieving session token: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Get the token from the cookie
-	token := cookie.Value
-
-	// Lock the session store to safely check the token
-	sessions.Lock()
-	username, exists := sessions.m[token]
-	sessions.Unlock()
-
-	// If the session is not found, return an error
-	if !exists {
-		http.Error(w, "Invalid or expired session token", http.StatusUnauthorized)
-		return
-	}
-
-	// If session is valid, respond with success
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Session is valid",
-		"user":    username,
-	})
-}
-
-// UsersHandler handles the /users GET endpoint
-func UsersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	rows, err := db.Query("SELECT id, username FROM users")
-	if err != nil {
-		http.Error(w, "Failed to query users: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var users []User
-	for rows.Next() {
-		var user User
-		if err := rows.Scan(&user.ID, &user.Username); err != nil {
-			http.Error(w, "Failed to scan user: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		users = append(users, user)
-	}
-
-	// Check for any errors that occurred during the iteration
-	if err := rows.Err(); err != nil {
-		http.Error(w, "Error iterating over users: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response header for JSON response
-	w.WriteHeader(http.StatusOK)
-	if len(users) == 0 {
-		w.Write([]byte("[]"))
-	} else {
-		json.NewEncoder(w).Encode(users)
-	}
 }

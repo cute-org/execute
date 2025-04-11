@@ -1,4 +1,4 @@
-package internal
+package middleware
 
 import (
 	"net"
@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	"golang.org/x/time/rate"
+
+	"execute/internal/handlers/auth"
 )
 
 // 60 requests for 30 minutes
@@ -97,9 +99,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
-		sessions.RLock()
-		username, exists := sessions.m[cookie.Value]
-		sessions.RUnlock()
+		username, exists := auth.GetSessionUsername(cookie.Value)
 		if !exists || strings.TrimSpace(username) == "" {
 			http.NotFound(w, r)
 			return
