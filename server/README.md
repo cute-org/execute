@@ -18,6 +18,7 @@ Registers a new user.
 *Field Descriptions:*
 - `username` (string) — Desired username (must be unique).
 - `password` (string) — Must be at least 8 characters, include letters and numbers.
+
 *Success Response:*
 - Status: `201 Created`
 ```json
@@ -38,7 +39,7 @@ Registers a new user.
 
 Login to account and grant a token with a cookie.
 
-*Request Body:*
+**Request Body:**
 ```json
 {
   "username": "exampleuser",
