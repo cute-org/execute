@@ -72,6 +72,7 @@ Cookie: `session_token`
 Validates the session token provided in cookies.
 
 *Success Response:*
+- Status: `200 OK`
 ```json
 {
   "message": "Session is valid",
@@ -79,9 +80,33 @@ Validates the session token provided in cookies.
 }
 ```
 
-Error Responses:
-- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+*Error Responses:*
 - `405 Method Not Allowed` — Invalid HTTP method used (only GET is allowed).
 - `500 Internal Server Error` — Error retrieving session token.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+### 🔒📋 GET /users
+
+Fetches all users from the database with their IDs and usernames.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "username": "exampleuser"
+  },
+  {
+    "id": 2,
+    "username": "anotheruser"
+  }
+]
+```
+*Error Responses:*
+- `500 Internal Server Error` — Failed to query users.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
 
 ---
