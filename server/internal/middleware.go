@@ -64,7 +64,7 @@ func getIP(r *http.Request) string {
 
 // rateLimitMiddleware is a middleware that checks if the request
 // from an IP is allowed to proceed
-func RateLimitMiddleware(next http.Handler) http.Handler {
+func rateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := getIP(r)
 		limiter := limiterStore.getLimiter(ip)
@@ -77,7 +77,7 @@ func RateLimitMiddleware(next http.Handler) http.Handler {
 }
 
 // SetContentTypeMiddleware is a middleware that sets the Content-Type header to application/json
-func SetContentTypeMiddleware(next http.Handler) http.Handler {
+func setContentTypeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
@@ -86,5 +86,30 @@ func SetContentTypeMiddleware(next http.Handler) http.Handler {
 
 // Helper function to apply multiple middlewares to a handler
 func ApplyMiddlewares(handler http.Handler) http.Handler {
-	return RateLimitMiddleware(SetContentTypeMiddleware(handler))
+	return rateLimitMiddleware(setContentTypeMiddleware(handler))
+}
+
+// authMiddleware is a middleware that checks for a valid session cookie.
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		sessions.RLock()
+		username, exists := sessions.m[cookie.Value]
+		sessions.RUnlock()
+		if !exists || strings.TrimSpace(username) == "" {
+			http.NotFound(w, r)
+			return
+		}
+		// You can set the username in the request context here if needed.
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Helper function to apply multiple middlewares to a handler
+func ApplyAuthMiddlewares(handler http.Handler) http.Handler {
+	return rateLimitMiddleware(authMiddleware(setContentTypeMiddleware(handler)))
 }
