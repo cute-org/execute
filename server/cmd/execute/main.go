@@ -13,9 +13,10 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Wrap handlers with rateLimitMiddleware!
+	// Wrap handlers with ApplyMiddlewares or ApplyAuthMidlewares!
 	mux.Handle("/register", internal.ApplyMiddlewares(http.HandlerFunc(internal.RegisterHandler)))
 	mux.Handle("/login", internal.ApplyMiddlewares(http.HandlerFunc(internal.LoginHandler)))
+	mux.Handle("/validate", internal.ApplyAuthMiddlewares(http.HandlerFunc(internal.ValidateHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
