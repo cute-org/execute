@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
@@ -13,6 +14,7 @@ import (
 
 func main() {
 	internal.InitDB()
+	go auth.CleanupExpiredSessions(10 * time.Minute)
 
 	mux := http.NewServeMux()
 

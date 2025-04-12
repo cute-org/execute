@@ -102,13 +102,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate credentials
-	if creds.Username == "" || creds.Password == "" {
-		http.Error(w, "Missing fields", http.StatusBadRequest)
+	// Input validation
+	if creds.Username == "" {
+		http.Error(w, "Username is required", http.StatusBadRequest)
+		return
+	}
+	if len(creds.Password) < 8 {
+		http.Error(w, "Password must be at least 8 characters long", http.StatusBadRequest)
 		return
 	}
 
-	// Check username and password
+	// Fetch salt and password hash from the database
 	var salt, storedPasswordHash string
 	row := internal.DB.QueryRow("SELECT salt, passwordhash FROM users WHERE username = $1", creds.Username)
 	if err := row.Scan(&salt, &storedPasswordHash); err != nil {
@@ -116,44 +120,39 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode the salt
+	// Decode the salt and compute password hash
 	saltBytes, err := base64.StdEncoding.DecodeString(salt)
 	if err != nil {
-		http.Error(w, "Error decoding salt", http.StatusInternalServerError)
+		http.Error(w, "Server error decoding salt", http.StatusInternalServerError)
 		return
 	}
-
-	// Compute the hash for the password
 	computedHash := generatePasswordHash(creds.Password, saltBytes)
 	computedHashB64 := base64.StdEncoding.EncodeToString(computedHash)
 
-	// Compare the stored password hash with the computed one
+	// Constant time comparison of hashes
 	if !compareHashes(storedPasswordHash, computedHashB64) {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
-	// Generate a new session token
-	token, err := GenerateSessionToken()
+	// Generate session and token
+	token, err := CreateSession(creds.Username)
 	if err != nil {
-		http.Error(w, "Error generating session", http.StatusInternalServerError)
+		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
 	}
 
-	// Store the session token along with the username
-	SetSession(token, creds.Username)
+	// Set the session cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   token,
+		Path:    "/",
+		Expires: time.Now().Add(sessionDuration),
+		// HttpOnly: true,
+		// Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
 
-	// Set the session cookie with a 7-day expiration
-	cookie := &http.Cookie{
-		Name:     "session_token",
-		Value:    token,
-		Path:     "/",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
-	}
-	http.SetCookie(w, cookie)
-
-	// Respond with the session token
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(TokenResponse{Token: token})
 }
