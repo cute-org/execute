@@ -1,18 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
 	"execute/internal/handlers/user"
 	"execute/internal/middleware"
+	"execute/internal/utils"
 )
+
+const addr = ":8437"
 
 func main() {
 	internal.InitDB()
+	go auth.CleanupExpiredSessions(10 * time.Minute)
 
 	mux := http.NewServeMux()
 
@@ -25,13 +29,13 @@ func main() {
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
 
-	addr := ":8437"
-	fmt.Printf("Server running at %s\n", addr)
+	utils.PrintIPs(addr)
+
 	srv := &http.Server{
 		Handler:      muxWithPrefix,
 		Addr:         addr,
-		ReadTimeout:  5e9,
-		WriteTimeout: 10e9,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	if err := srv.ListenAndServe(); err != nil {

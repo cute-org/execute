@@ -4,16 +4,26 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"sync"
+	"time"
 )
 
-// Session store for logged-in users.
-// Maps session token to username.
-var sessions = struct {
-	m map[string]string
-	sync.RWMutex
-}{m: make(map[string]string)}
+// Session represents a user session with an associated expiration time
+type Session struct {
+	Username  string
+	ExpiresAt time.Time
+}
 
-// GenerateSessionToken creates a random, Base64-encoded token to be used as a session identifier.
+const sessionDuration = 7 * 24 * time.Hour
+
+// sessionStore holds the sessions with thread-safe access
+var sessionStore = struct {
+	sessions map[string]Session
+	sync.RWMutex
+}{
+	sessions: make(map[string]Session),
+}
+
+// GenerateSessionToken creates a random, Base64-encoded token to be used as a session identifier
 func GenerateSessionToken() (string, error) {
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
@@ -22,24 +32,56 @@ func GenerateSessionToken() (string, error) {
 	return base64.StdEncoding.EncodeToString(tokenBytes), nil
 }
 
-// GetSessionUsername retrieves the username associated with a session token.
+// CreateSession adds a new session for the specified username with an expiration timestamp
+func CreateSession(username string) (string, error) {
+	token, err := GenerateSessionToken()
+	if err != nil {
+		return "", err
+	}
+	sessionStore.Lock()
+	defer sessionStore.Unlock()
+	sessionStore.sessions[token] = Session{
+		Username:  username,
+		ExpiresAt: time.Now().Add(sessionDuration),
+	}
+	return token, nil
+}
+
+// GetSessionUsername retrieves the username associated with a session token if it is not expired
 func GetSessionUsername(token string) (string, bool) {
-	sessions.RLock()
-	defer sessions.RUnlock()
-	username, exists := sessions.m[token]
-	return username, exists
+	sessionStore.RLock()
+	session, exists := sessionStore.sessions[token]
+	sessionStore.RUnlock()
+	if !exists || time.Now().After(session.ExpiresAt) {
+		// If the session is expired, clean it up
+		DeleteSession(token)
+		return "", false
+	}
+	return session.Username, true
 }
 
-// SetSession associates a session token with a username.
-func SetSession(token, username string) {
-	sessions.Lock()
-	defer sessions.Unlock()
-	sessions.m[token] = username
-}
-
-// DeleteSession removes a session token from the store.
+// DeleteSession removes a session token from the store
 func DeleteSession(token string) {
-	sessions.Lock()
-	defer sessions.Unlock()
-	delete(sessions.m, token)
+	sessionStore.Lock()
+	defer sessionStore.Unlock()
+	delete(sessionStore.sessions, token)
+}
+
+// sessionStoreCleanup iterates over the sessions and deletes expired ones
+func sessionStoreCleanup() {
+	sessionStore.Lock()
+	defer sessionStore.Unlock()
+	now := time.Now()
+	for token, session := range sessionStore.sessions {
+		if now.After(session.ExpiresAt) {
+			delete(sessionStore.sessions, token)
+		}
+	}
+}
+
+func CleanupExpiredSessions(interval time.Duration) {
+	for {
+		time.Sleep(interval)
+		sessionStoreCleanup()
+	}
 }
