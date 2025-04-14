@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -53,22 +51,20 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate a unique 16-byte salt
-	saltBytes := make([]byte, 16)
-	if _, err := rand.Read(saltBytes); err != nil {
+	saltBytes, err := GenerateSalt()
+	if err != nil {
 		http.Error(w, "Error generating salt", http.StatusInternalServerError)
 		return
 	}
-	salt := base64.StdEncoding.EncodeToString(saltBytes)
 
-	// Compute Argon2id hash for the password
-	hashBytes := generatePasswordHash(creds.Password, saltBytes)
-	passwordHash := base64.StdEncoding.EncodeToString(hashBytes)
+	// Hash the password with the salt
+	passwordHash := HashPassword(creds.Password, saltBytes)
 
 	// Insert the user into the database and return the new user ID
 	var userID int
-	err := internal.DB.QueryRow(
+	err = internal.DB.QueryRow(
 		"INSERT INTO users(username, salt, passwordhash) VALUES ($1, $2, $3) RETURNING id",
-		creds.Username, salt, passwordHash,
+		creds.Username, EncodeSalt(saltBytes), passwordHash,
 	).Scan(&userID)
 	if err != nil {
 		if internal.IsUniqueViolation(err) {
@@ -120,17 +116,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode the salt and compute password hash
-	saltBytes, err := base64.StdEncoding.DecodeString(salt)
+	// Decode the salt and compute the password hash
+	saltBytes, err := DecodeSalt(salt)
 	if err != nil {
 		http.Error(w, "Server error decoding salt", http.StatusInternalServerError)
 		return
 	}
-	computedHash := generatePasswordHash(creds.Password, saltBytes)
-	computedHashB64 := base64.StdEncoding.EncodeToString(computedHash)
+	computedHash := HashPassword(creds.Password, saltBytes)
 
 	// Constant time comparison of hashes
-	if !compareHashes(storedPasswordHash, computedHashB64) {
+	if !CompareHashes(storedPasswordHash, computedHash) {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}

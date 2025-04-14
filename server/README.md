@@ -111,3 +111,72 @@ Fetches all users from the database with their IDs and usernames.
 - `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
 
 ---
+
+## 🔒🔧 PUT /user-edit
+
+Updates an existing user's information.
+*Request Body:*
+```json
+{
+  "id": 123,
+  "username": "newusername",
+  "password": "currentPassword123",
+  "newpassword": "NewSecurePass456",
+  "avatar": "base64encodedImage=="
+}
+```
+*Field Descriptions:*
+- `id` (integer) — User ID (required).
+- `username` (string) — New username (optional).
+- `password` (string) — Current password (required for verification).
+- `newpassword` (string) — New password (optional, must be at least 6 characters).
+- `avatar` (string) — Base64-encoded avatar image (optional).
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "status": "updated"
+}
+```
+
+*Error Response:*
+- `400 Bad Request` — Missing or invalid input.
+- `401 Unauthorized` — Incorrect current password.
+- `405 Method Not Allowed` — Only PUT is allowed.
+- `413 Request Entity Too Large` — Uploaded file exceeds the size limit.
+- `415 Unsupported Media Type` — Content-Type not supported.
+- `500 Internal Server Error` — Unexpected error during update.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+## 🔒🖼️ GET /avatar
+
+Retrieves a user's avatar in base64 encoded format.
+
+*Query Parameters:*
+- `id` (integer) — The user ID (required)
+
+*Success Response:*
+- Status: `200 OK`
+- Content-Type: `text/plain`
+```text
+
+data:image/png;base64,<base64_encoded_data>
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid user ID.
+- `405 Method Not Allowed` — Only GET method is allowed.
+- `500 Internal Server Error` — Error retrieving avatar data.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+*Usage in JS:*
+```js
+fetch('/avatar?id=1')
+  .then(res => res.text())
+  .then(data => document.querySelector('img').src = data);
+```
+
+---

@@ -70,9 +70,10 @@ func InitDB() {
         id SERIAL PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
         salt TEXT NOT NULL,
-        passwordhash TEXT NOT NULL
-    );
-    `
+        passwordhash TEXT NOT NULL,
+        avatar BYTEA
+    );`
+
 	_, err = DB.Exec(createTable)
 	if err != nil {
 		log.Fatal("failed to create table:", err)

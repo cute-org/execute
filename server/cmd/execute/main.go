@@ -25,6 +25,8 @@ func main() {
 	mux.Handle("/login", middleware.ApplyMiddlewares(http.HandlerFunc(auth.LoginHandler)))
 	mux.Handle("/validate", middleware.ApplyAuthMiddlewares(http.HandlerFunc(auth.ValidateHandler)))
 	mux.Handle("/users", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UsersHandler)))
+	mux.Handle("/user-edit", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.EditUserHandler)))
+	mux.Handle("/avatar", middleware.ApplyImageMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
