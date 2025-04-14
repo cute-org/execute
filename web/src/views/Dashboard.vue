@@ -94,13 +94,166 @@
       </div>
       
       <!-- Main content area -->
-      <div class="flex-grow bg-black">
-        <!-- Empty content area -->
-      </div>
+      <div class="flex-grow bg-black m-12">
+        <!-- Dashboard elements  -->
+         <div class="flex flex-wrap gap-12 ">
+            <!-- To-Do -->
+              <div class="w-[28rem] bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
+                <!-- Header -->
+                <div class="relative flex justify-center items-center mb-6">
+                  <h1 class="text-white text-3xl  font-bold">To-Do</h1>
+                  <button class="absolute right-0 text-white text-2xl">
+                    &bull;&bull;&bull; <!-- Settings dots -->
+                  </button>
+                </div>
+
+                <!-- Adding tasks design and logic  -->
+                <div v-if="tasks.length" class="">
+                  <div 
+                  v-for = "(item, index) in tasks"
+                  :key = "index"
+                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
+                  >
+                  <div class="flex items-center">
+                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                    <!-- Elements inside  -->
+                        <div class="">
+                            <div class="text-xl">{{ item.name }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                            </div>
+                            
+                        </div>
+                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                    </div>
+                </div>
+                  <!-- No tasks yet  -->
+                <div v-else class="">No tasks yet. Add one</div>
+
+            <!-- Add task button -->
+            <div>
+              <button class="flex items-center text-white" @click="openModal">
+                <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
+                  <span class="font-bold">+</span>
+                </div>
+                <span class="text-white text-lg font-medium">Add Tasks</span>
+              </button>
+            </div>
+          </div>
+
+
+          <!-- In progress -->
+          <div class="w-[28rem] bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
+                <!-- Header -->
+                <div class="relative flex justify-center items-center mb-6">
+                  <h1 class="text-white text-3xl  font-bold">In progress</h1>
+                  <button class="absolute right-0 text-white text-2xl">
+                    &bull;&bull;&bull; <!-- Settings dots -->
+                  </button>
+                </div>
+
+                <!-- Adding tasks design and logic  -->
+                <div v-if="tasks.length" class="">
+                  <div 
+                  v-for = "(item, index) in tasks"
+                  :key = "index"
+                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
+                  >
+                  <div class="flex items-center">
+                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                    <!-- Elements inside  -->
+                        <div class="">
+                            <div class="text-xl">{{ item.name }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                            </div>
+                            
+                        </div>
+                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                    </div>
+                </div>
+                  <!-- No tasks yet  -->
+                <div v-else class="">No tasks yet. Add one</div>
+
+            <!-- Add task button -->
+            <div>
+              <button class="flex items-center text-white" @click="openModal">
+                <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
+                  <span class="font-bold">+</span>
+                </div>
+                <span class="text-white text-lg font-medium">Add Tasks</span>
+              </button>
+            </div>
+          </div>
+
+
+          <!-- Completed -->
+          <div class="w-[28rem] bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
+                <!-- Header -->
+                <div class="relative flex justify-center items-center mb-6">
+                  <h1 class="text-white text-3xl  font-bold">Completed</h1>
+                  <button class="absolute right-0 text-white text-2xl">
+                    &bull;&bull;&bull; <!-- Settings dots -->
+                  </button>
+                </div>
+
+                <!-- Adding tasks design and logic  -->
+                <div v-if="tasks.length" class="">
+                  <div 
+                  v-for = "(item, index) in tasks"
+                  :key = "index"
+                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
+                  >
+                  <div class="flex items-center">
+                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                    <!-- Elements inside  -->
+                        <div class="">
+                            <div class="text-xl">{{ item.name }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                            </div>
+                            
+                        </div>
+                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                    </div>
+                </div>
+                  <!-- No tasks yet  -->
+                <div v-else class="">No tasks yet. Add one</div>
+
+            <!-- Add task button -->
+            <div>
+              <button class="flex items-center text-white" @click="openModal">
+                <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
+                  <span class="font-bold">+</span>
+                </div>
+                <span class="text-white text-lg font-medium">Add Tasks</span>
+              </button>
+            </div>
+          </div>
+        </div>
     </div>
   </div>
+</div>
 
-
+  <!-- Task Modal -->
+  <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-zinc-900 text-white p-6 rounded-xl w-full max-w-md space-y-4">
+        <h2 class="text-xl font-semibold">Add New Task</h2>
+        <div>
+          <label class="block mb-1">Task Name</label>
+          <input v-model="task.name" type="text" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" />
+        </div>
+        <div>
+          <label class="block mb-1">Points</label>
+          <input v-model="task.points" type="number" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" />
+        </div>
+        <div>
+          <label class="block mb-1">Due Date</label>
+          <input v-model="task.dueDate" type="date" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" /> <!-- input adds calendar on the right btw -->
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button @click="closeModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Cancel</button>
+          <button @click="saveTask" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Save</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Dialog settings & design -->
     <!-- Settings Dialog-->
@@ -176,4 +329,33 @@
 
     const openSettings = ref(false)
     const openInfo = ref(false)
+
+    //Adding tasks logic
+    const isModalOpen = ref(false) //For showing add tasks dialog
+    const task = ref({
+      name: '',
+      points: 0, //Number
+      dueDate: '',
+      isDone: false
+    })
+
+    function openModal() {
+      isModalOpen.value = true
+    }
+    function closeModal() {
+      isModalOpen.value = false
+    }
+
+    const tasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+
+    function saveTask() {
+      //Placeholder logic for adding in list
+      if (!task.value.name.trim()) {
+        alert('Task name is required')
+        return
+      }
+      tasks.value.push({...task.value })
+      //Logic for backhend here
+      closeModal()
+    }
 </script>
