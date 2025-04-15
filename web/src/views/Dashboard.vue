@@ -233,19 +233,19 @@
 
   <!-- Task Modal -->
   <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-zinc-900 text-white p-6 rounded-xl w-full max-w-md space-y-4">
-        <h2 class="text-xl font-semibold">Add New Task</h2>
+      <div class="border-2 border-solid border-borderColor bg-infoBg text-white p-6 rounded-xl w-full max-w-md space-y-4">
+        <h2 class="text-2xl text-center font-semibold">Add Task</h2>
         <div>
           <label class="block mb-1">Task Name</label>
-          <input v-model="task.name" type="text" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" />
+          <input v-model="task.name" type="text" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
         <div>
           <label class="block mb-1">Points</label>
-          <input v-model="task.points" type="number" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" />
+          <input v-model="task.points" type="number" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
         <div>
           <label class="block mb-1">Due Date</label>
-          <input v-model="task.dueDate" type="date" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700" /> <!-- input adds calendar on the right btw -->
+          <input v-model="task.dueDate" type="date" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" /> <!-- input type adds calendar on the right btw -->
         </div>
         <div class="flex justify-end space-x-2">
           <button @click="closeModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Cancel</button>
