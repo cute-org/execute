@@ -96,9 +96,9 @@
       <!-- Main content area -->
       <div class="flex-grow bg-black m-12">
         <!-- Dashboard elements  -->
-         <div class="flex flex-wrap gap-12 ">
+         <div class="flex flex-wrap gap-12 items-start">
             <!-- To-Do -->
-              <div class="w-[28rem] bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
+              <div class="w-[28rem] flex-none bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl  font-bold">To-Do</h1>
@@ -108,9 +108,9 @@
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="tasks.length" class="">
+                <div v-if="toDoTasks.length" class="">
                   <div 
-                  v-for = "(item, index) in tasks"
+                  v-for = "(item, index) in toDoTasks"
                   :key = "index"
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
@@ -128,10 +128,9 @@
                 </div>
                   <!-- No tasks yet  -->
                 <div v-else class="">No tasks yet. Add one</div>
-
             <!-- Add task button -->
             <div>
-              <button class="flex items-center text-white" @click="openModal">
+              <button class="flex items-center text-white" @click="openModal('todo')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
                   <span class="font-bold">+</span>
                 </div>
@@ -152,9 +151,9 @@
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="tasks.length" class="">
+                <div v-if="inProgressTasks.length" class="">
                   <div 
-                  v-for = "(item, index) in tasks"
+                  v-for = "(item, index) in inProgressTasks"
                   :key = "index"
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
@@ -175,7 +174,7 @@
 
             <!-- Add task button -->
             <div>
-              <button class="flex items-center text-white" @click="openModal">
+              <button class="flex items-center text-white" @click="openModal('inProgress')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
                   <span class="font-bold">+</span>
                 </div>
@@ -189,16 +188,16 @@
           <div class="w-[28rem] bg-black rounded-3xl p-6 shadow-lg border-2" style="border-color: #3C2650;">
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
-                  <h1 class="text-white text-3xl  font-bold">Completed</h1>
+                  <h1 class="text-white text-3xl font-bold">Completed</h1>
                   <button class="absolute right-0 text-white text-2xl">
                     &bull;&bull;&bull; <!-- Settings dots -->
                   </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="tasks.length" class="">
+                <div v-if="completedTasks.length" class="">
                   <div 
-                  v-for = "(item, index) in tasks"
+                  v-for = "(item, index) in completedTasks"
                   :key = "index"
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
@@ -219,7 +218,7 @@
 
             <!-- Add task button -->
             <div>
-              <button class="flex items-center text-white" @click="openModal">
+              <button class="flex items-center text-white" @click="openModal('completed')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
                   <span class="font-bold">+</span>
                 </div>
@@ -309,6 +308,7 @@
 
 </template>
 
+
 <!-- Setting up router navigation  -->
 <script lang="ts" setup>
     import { useRouter } from 'vue-router'
@@ -332,30 +332,44 @@
 
     //Adding tasks logic
     const isModalOpen = ref(false) //For showing add tasks dialog
-    const task = ref({
-      name: '',
-      points: 0, //Number
-      dueDate: '',
-      isDone: false
-    })
+    
 
-    function openModal() {
+    function openModal(listType: string) {
+      activeTaskList.value = listType
       isModalOpen.value = true
     }
     function closeModal() {
       isModalOpen.value = false
     }
 
-    const tasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const toDoTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const inProgressTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const completedTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const activeTaskList = ref('')
 
+    const task = ref({
+      name: '',
+      points: 0, //Number
+      dueDate: '',
+      isDone: false
+    })
+    
     function saveTask() {
       //Placeholder logic for adding in list
       if (!task.value.name.trim()) {
         alert('Task name is required')
         return
       }
-      tasks.value.push({...task.value })
-      //Logic for backhend here
+      //Logic for backend here
+      // Adding to specific list
+      if (activeTaskList.value == 'todo') {
+        toDoTasks.value.push({...task.value})
+      } else if (activeTaskList.value == 'inProgress') {
+        inProgressTasks.value.push({...task.value})
+      } else if (activeTaskList.value == 'completed') {
+        completedTasks.value.push({...task.value})
+      }
+
       closeModal()
     }
 </script>
