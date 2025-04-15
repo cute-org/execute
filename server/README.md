@@ -88,7 +88,7 @@ Validates the session token provided in cookies.
 
 ---
 
-### 🔒📋 GET /users
+### 🔒📋 GET /user
 
 Fetches all users from the database with their IDs and usernames.
 
@@ -112,7 +112,7 @@ Fetches all users from the database with their IDs and usernames.
 
 ---
 
-## 🔒🔧 PUT /user-edit
+## 🔒🔧 PUT /user
 
 Updates an existing user's information.
 *Request Body:*

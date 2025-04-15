@@ -11,13 +11,8 @@ import (
 	"execute/internal/handlers/auth"
 )
 
-// EditUserHandler handles the /user-edit PUT endpoint
+// EditUserHandler handles the /user PUT endpoint
 func EditUserHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
 	contentType := r.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
 		handleJSONUpdate(w, r)

@@ -21,11 +21,17 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Wrap handlers with ApplyMiddlewares or ApplyAuthMidlewares!
+
+	// AUTH
 	mux.Handle("/register", middleware.ApplyMiddlewares(http.HandlerFunc(auth.RegisterHandler)))
 	mux.Handle("/login", middleware.ApplyMiddlewares(http.HandlerFunc(auth.LoginHandler)))
 	mux.Handle("/validate", middleware.ApplyAuthMiddlewares(http.HandlerFunc(auth.ValidateHandler)))
-	mux.Handle("/users", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UsersHandler)))
-	mux.Handle("/user-edit", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.EditUserHandler)))
+
+	// USER
+	mux.Handle("/user", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"GET": user.UsersHandler,
+		"PUT": user.EditUserHandler,
+	})))
 	mux.Handle("/avatar", middleware.ApplyImageMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
 
 	// v1
