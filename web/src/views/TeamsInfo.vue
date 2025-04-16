@@ -115,7 +115,6 @@
           <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
         </div>
         <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
-          <div class ="w-6 h-5 rounded-full bg-purple-50"> </div>
           <div class="flex justify-between w-full text-white text-sm">
             <span class ="">Team 1 </span>
             <span class ="text-right ">500 points</span>

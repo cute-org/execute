@@ -92,7 +92,7 @@
         <!-- Points placeholder -->
         <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
       </div>
-      
+       
       <!-- Main content area -->
       <div class="flex-grow bg-black m-12">
         <!-- Dashboard elements  -->
@@ -240,6 +240,11 @@
           <input v-model="task.name" type="text" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
         <div>
+          <label class="block mb-1">Description</label>
+          <input v-model="task.description" type="text" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
+        </div>
+        <div></div>
+        <div>
           <label class="block mb-1">Points</label>
           <input v-model="task.points" type="number" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
@@ -342,13 +347,14 @@
       isModalOpen.value = false
     }
 
-    const toDoTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
-    const inProgressTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
-    const completedTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const toDoTasks = ref<Array<{name: string; description: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const inProgressTasks = ref<Array<{name: string; description: string; points: number; dueDate: string, isDone: Boolean }>>([])
+    const completedTasks = ref<Array<{name: string; description: string; points: number; dueDate: string, isDone: Boolean }>>([])
     const activeTaskList = ref('')
 
     const task = ref({
       name: '',
+      description: '',
       points: 0, //Number
       dueDate: '',
       isDone: false
