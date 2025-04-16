@@ -85,7 +85,7 @@
         <div class ="flex px-8 py-4 bg-infoBg items-center justify-center text-center rounded-3xl border-borderColor border-2  border-solid">
             <h1 class="text-[48px]">HARDCODED Iwona</h1>
         </div>
-        <div class ="px-4 mt-[-2px] bg-infoBg text-center rounded-3xl border-borderColor border-2  border-solid">
+        <div class ="px-4 mt-[-1px] bg-infoBg text-center rounded-3xl border-borderColor border-2  border-solid">
             <h1 class="text-[18px]">Art director</h1>
         </div>
 

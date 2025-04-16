@@ -65,35 +65,64 @@
     </div>
    
    <!-- Main content area -->
-   <div class="flex-1 flex flex-col">
+   <div class="flex-1 flex flex-col min-h-screen overflow-y-auto">
      <!-- Header bar -->
-     <div class="bg-black pt-5 pb-3 px-8 border-b border-white/50 ">
+     <div class="bg-black pt-5 pb-3 px-8 mb-20 border-b border-white/50 ">
        <div class="flex items-center">
          <h1 class="text-5xl font-semibold text-white font-adlam">ExeCute</h1>
        </div>
      </div>
-     
-     <!-- Team info section -->
-     <div class="px-16 py-6">
-       <div class="flex items-center">
-         <h2 class="text-3xl text-white font-adlam">Team 1</h2>
-         <div class="flex ml-4 -space-x-2">
-           <!-- Team elements users placeholders  -->
-           <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-black"></div>
-           <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-black"></div>
-           <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-black"></div>
-         </div>
-         <!-- Number of team members placeholder  -->
-         <div class="ml-1 px-2 py-0.5 bg-gray-500 bg-opacity-50 rounded-full text-sm text-white">+21</div>
-       </div>
-       <!-- Points placeholder -->
-       <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
-     </div>
-     
+
      <!-- Main content area -->
-     <div class="flex-grow bg-black">
-       <!-- Empty content area -->
+      <div class="flex justify-center w-full">
+        <div class ="space-y-2  w-full max-w-[30rem] px-6 py-4 bg-borderColor rounded-xl border-borderColor border-2 border-solid flex justify-center">
+            <span class="text-6xl">TEAM 1</span> 
+        </div>
+      </div>
+      <!-- Members, meeting, scoreboard -->
+      <!-- Members section -->
+     <div class="flex flex-col items-center lg:flex-row lg:justify-center w-full px-4 bg-black items-start">
+      <div class ="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
+        <!-- Headline -->
+        <div class="flex justify-center pb-8">
+          <h1 class="text-white text-3xl font-bold">Members</h1>
+        </div>
+
+        <!-- Members -->
+        <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+          <div class ="w-6 h-5 rounded-full bg-purple-50"> </div>
+          <div class="flex justify-between w-full text-white text-sm">
+            <span class ="">Member 1</span>
+            <span class ="text-right ">Project Leader</span>
+          </div>
+        </div>
+      </div>
+      <!-- Next meeting section -->
+      <div class ="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
+        <div class="flex justify-center pb-4">
+          <h1 class="text-white text-4xl font-bold">Next meeting:</h1>
+        </div>
+        <!-- Placeholder date -->
+        <div class="flex justify-center ">
+          <h1 class="text-white text-3xl">18 apr 15:00</h1>
+        </div>
      </div>
+     <!-- Scoreboard section -->
+     <div class ="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
+      <!-- Headline -->
+       <!-- We should delete scoreboard tbh -->
+      <div class="flex justify-center pb-8">
+          <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
+        </div>
+        <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+          <div class ="w-6 h-5 rounded-full bg-purple-50"> </div>
+          <div class="flex justify-between w-full text-white text-sm">
+            <span class ="">Team 1 </span>
+            <span class ="text-right ">500 points</span>
+          </div>
+        </div>
+      </div>
+    </div>
    </div>
  </div>
 
