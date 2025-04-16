@@ -68,7 +68,7 @@
     </div>
 
     <!-- Main content area -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col min-h-screen overflow-y-auto">
       <!-- Header bar -->
       <div class="bg-black pt-5 pb-3 px-8 border-b border-white/50 ">
         <div class="flex items-center">
