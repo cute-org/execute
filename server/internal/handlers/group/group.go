@@ -29,7 +29,7 @@ type resp struct {
 
 type updateGroupReq struct {
 	Name string `json:"name"`
-	Code string `json:"code"`
+	Code string `json:"code,omitempty"`
 }
 
 // CreateGroupHandler handles POST /group
@@ -151,18 +151,29 @@ func UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode request body for new group values
 	var req updateGroupReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	// Perform the update on the groups table, ensuring only the group's creator can modify it
-	result, err := internal.DB.Exec(
-		`UPDATE groups SET name = $1, code = $2 WHERE id = $3 AND creator_user_id = $4`,
-		req.Name, req.Code, groupID, userID,
-	)
+	if req.Name == "" {
+		http.Error(w, "group name is required", http.StatusBadRequest)
+		return
+	}
+
+	var query string
+	var args []any
+
+	if req.Code != "" {
+		query = `UPDATE groups SET name = $1, code = $2 WHERE id = $3 AND creator_user_id = $4`
+		args = []any{req.Name, req.Code, groupID, userID}
+	} else {
+		query = `UPDATE groups SET name = $1 WHERE id = $2 AND creator_user_id = $3`
+		args = []any{req.Name, groupID, userID}
+	}
+
+	result, err := internal.DB.Exec(query, args...)
 	if err != nil {
 		if internal.IsUniqueViolation(err) {
 			http.Error(w, "group code already in use", http.StatusConflict)
@@ -172,7 +183,6 @@ func UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that a row was actually updated
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
 		http.Error(w, "no permission to update group or group not found", http.StatusForbidden)

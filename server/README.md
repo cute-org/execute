@@ -255,16 +255,19 @@ Allows the creator of a group to update the group's name.
 ```json
 {
   "name": "New Group Name"
+  "code": "new-group-code"
 }
 ```
 *Field Descriptions:*
 - `name` (string) — New group name (required).
+- `code` (string) — New group code (optional, must be unique).
 
 *Success Response:*
 - Status: `200 OK`
 ```json
 {
-  "message": "Group updated successfully"
+  "message": "Group updated successfully",
+  "group_id": 123
 }
 ```
 
