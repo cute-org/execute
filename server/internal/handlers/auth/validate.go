@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+type ValidateResponse struct {
+	Message string `json:"message"`
+	User    string `json:"user"`
+}
+
 // ValidateHandler handles the /validate GET endpoint to check if the session is valid
 func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -35,8 +40,8 @@ func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// If session is valid, respond with success
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Session is valid",
-		"user":    username,
+	json.NewEncoder(w).Encode(ValidateResponse{
+		Message: "Session is valid",
+		User:    username,
 	})
 }

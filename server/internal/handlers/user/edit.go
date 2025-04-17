@@ -11,6 +11,18 @@ import (
 	"execute/internal/handlers/auth"
 )
 
+type EditUserRequest struct {
+	ID          int     `json:"id"`
+	Username    *string `json:"username,omitempty"`
+	Password    *string `json:"password,omitempty"`    // Current password
+	NewPassword *string `json:"newpassword,omitempty"` // New password
+	Avatar      *string `json:"avatar,omitempty"`
+}
+
+type EditUserResponse struct {
+	Status string `json:"status"`
+}
+
 // EditUserHandler handles the /user PUT endpoint
 func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
@@ -25,14 +37,6 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // JSON handling
 func handleJSONUpdate(w http.ResponseWriter, r *http.Request) {
-	type EditUserRequest struct {
-		ID          int     `json:"id"`
-		Username    *string `json:"username"`
-		Password    *string `json:"password"`    // Current password
-		NewPassword *string `json:"newpassword"` // New password (optional)
-		Avatar      *string `json:"avatar"`
-	}
-
 	var req EditUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
@@ -121,8 +125,10 @@ func handleJSONUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp := EditUserResponse{Status: "updated"}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"updated"}`))
+	json.NewEncoder(w).Encode(resp)
 }
 
 // Multipart (file) upload handling
@@ -205,6 +211,8 @@ func handleMultipartUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp := EditUserResponse{Status: "updated"}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"updated"}`))
+	json.NewEncoder(w).Encode(resp)
 }
