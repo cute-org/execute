@@ -92,7 +92,7 @@
         <!-- Points placeholder -->
         <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
       </div>
-      
+       
       <!-- Main content area -->
       <div class="flex-grow bg-black m-12">
         <!-- Dashboard elements  -->
@@ -114,14 +114,18 @@
                   :key = "index"
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
-                  <div class="flex items-center">
-                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
-                    <!-- Elements inside  -->
-                        <div class="">
-                            <div class="text-xl">{{ item.name }}</div>
-                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
-                            </div>
-                            
+                  
+                    <div class="flex items-center">
+                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <button @click="openTaskSettings(item, 'todo', index)
+                            ">
+
+                          <!-- Elements inside  -->
+                              <div class="">
+                                  <div class="text-xl">{{ item.name }}</div>
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  </div>
+                              </button>
                         </div>
                         <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
@@ -158,15 +162,18 @@
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
                   <div class="flex items-center">
-                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
-                    <!-- Elements inside  -->
-                        <div class="">
-                            <div class="text-xl">{{ item.name }}</div>
-                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
-                            </div>
-                            
+                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <button @click="openTaskSettings(item, 'todo', index)
+                            ">
+
+                          <!-- Elements inside  -->
+                              <div class="">
+                                  <div class="text-xl">{{ item.name }}</div>
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  </div>
+                              </button>
                         </div>
-                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                        <span class="text-white text-sm">{{ item.points || '0'}}pkt</span>
                     </div>
                 </div>
                   <!-- No tasks yet  -->
@@ -202,13 +209,15 @@
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
                   <div class="flex items-center">
-                      <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
-                    <!-- Elements inside  -->
-                        <div class="">
-                            <div class="text-xl">{{ item.name }}</div>
-                            <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
-                            </div>
-                            
+                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <button @click="openTaskSettings(item, 'todo', index)
+                            ">
+                          <!-- Elements inside  -->
+                              <div class="">
+                                  <div class="text-xl">{{ item.name }}</div>
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  </div>
+                              </button>
                         </div>
                         <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
@@ -240,6 +249,11 @@
           <input v-model="task.name" type="text" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
         <div>
+          <label class="block mb-1">Description</label>
+          <input v-model="task.description" type="text" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
+        </div>
+        <div></div>
+        <div>
           <label class="block mb-1">Points</label>
           <input v-model="task.points" type="number" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" />
         </div>
@@ -254,6 +268,35 @@
       </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div v-if="isTaskSettingOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="border-2 border-solid border-borderColor bg-infoBg text-white p-6 rounded-xl w-full max-w-md space-y-4">
+    <h2 class="text-2xl text-center font-semibold">{{ selectedTask?.name }}</h2>
+    
+    <div>
+      <h3 class="font-medium text-lg mb-1">Description:</h3>
+      <!-- If no description 'No description provided'-->
+      <p class="text-gray-300">{{ selectedTask?.description || 'No description provided' }}</p>
+    </div>
+    
+    <div>
+      <h3 class="font-medium text-lg mb-1">Points:</h3>
+      <!-- If no points 'No points set'-->
+      <p class="text-gray-300">{{ selectedTask?.points || 'No points set' }} </p>
+    </div>
+    
+    <div>
+      <h3 class="font-medium text-lg mb-1">Due Date:</h3>
+      <!-- If no date 'No due date set'-->
+      <p class="text-gray-300">{{ selectedTask?.dueDate || 'No due date set' }}</p>
+    </div>
+    
+    <div class="flex justify-between space-x-2 mt-4">
+      <button @click="deleteTask" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500">Delete Task</button>
+      <button @click="closeTaskSettings" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Close</button>
+    </div>
+  </div>
+</div>
     <!-- Dialog settings & design -->
     <!-- Settings Dialog-->
     <TransitionRoot as="template" :show="openSettings">
@@ -327,6 +370,14 @@
     router.push('/teaminfo')
     }
 
+    interface TaskItem {
+      name: string,
+      description: string,
+      points: number,
+      dueDate: string,
+      isDone: boolean
+    }
+
     const openSettings = ref(false)
     const openInfo = ref(false)
 
@@ -338,22 +389,24 @@
       activeTaskList.value = listType
       isModalOpen.value = true
     }
+    
     function closeModal() {
       isModalOpen.value = false
     }
-
-    const toDoTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
-    const inProgressTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
-    const completedTasks = ref<Array<{name: string; points: number; dueDate: string, isDone: Boolean }>>([])
-    const activeTaskList = ref('')
-
-    const task = ref({
+    
+    const task = ref<TaskItem>({
       name: '',
+      description: '',
       points: 0, //Number
       dueDate: '',
       isDone: false
     })
-    
+
+    const toDoTasks = ref<TaskItem[]>([])
+    const inProgressTasks = ref<TaskItem[]>([])
+    const completedTasks = ref<TaskItem[]>([])
+    const activeTaskList = ref('')
+
     function saveTask() {
       //Placeholder logic for adding in list
       if (!task.value.name.trim()) {
@@ -371,5 +424,35 @@
       }
 
       closeModal()
+    }
+    
+    //Tasks settings
+    const isTaskSettingOpen = ref(false)
+    const selectedTask = ref<TaskItem | null>(null)
+    const selectedTaskList = ref('')
+    const selectedTaskIndex = ref(-1)
+
+  
+    function openTaskSettings(task: TaskItem, listType: string, index: number) {
+      selectedTask.value = task
+      selectedTaskList.value = listType
+      selectedTaskIndex.value = index
+      isTaskSettingOpen.value = true
+    }
+    
+    function closeTaskSettings() {
+      isTaskSettingOpen.value = false
+    }
+
+    // Delete task
+    function deleteTask() {
+      if (selectedTaskList.value === 'todo') {
+        toDoTasks.value.splice(selectedTaskIndex.value, 1)
+      } else if (selectedTaskList.value === 'inProgress') {
+        inProgressTasks.value.splice(selectedTaskIndex.value, 1)
+      } else if (selectedTaskList.value === 'completed') {
+        completedTasks.value.splice(selectedTaskIndex.value, 1)
+      }
+      closeTaskSettings()
     }
 </script>
