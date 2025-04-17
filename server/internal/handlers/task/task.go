@@ -12,14 +12,15 @@ import (
 )
 
 type Task struct {
-	ID            int       `json:"id"`
-	GroupID       int       `json:"groupId"`
-	CreatorUserID int       `json:"creatorUserId"`
-	CreationDate  time.Time `json:"creationDate"`
-	DueDate       time.Time `json:"dueDate"`
-	Name          string    `json:"name"`
-	Description   string    `json:"description"`
-	PointsValue   int       `json:"pointsValue"`
+	ID              int       `json:"id"`
+	GroupID         int       `json:"groupId"`
+	CreatorUserID   int       `json:"creatorUserId"`
+	CreatorUsername string    `json:"creatorUsername"`
+	CreationDate    time.Time `json:"creationDate"`
+	DueDate         time.Time `json:"dueDate"`
+	Name            string    `json:"name"`
+	Description     string    `json:"description"`
+	PointsValue     int       `json:"pointsValue"`
 }
 
 type createReq struct {
@@ -69,8 +70,8 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var taskID int
 	err = internal.DB.QueryRow(
 		`INSERT INTO tasks
-           (group_id, creator_user_id, due_date, name, description, points_value)
-         VALUES($1,$2,$3,$4,$5,$6) RETURNING id`,
+		   (group_id, creator_user_id, due_date, name, description, points_value)
+		 VALUES($1,$2,$3,$4,$5,$6) RETURNING id`,
 		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue,
 	).Scan(&taskID)
 	if err != nil {
@@ -78,8 +79,19 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var username string
+	if err := internal.DB.QueryRow(
+		"SELECT username FROM users WHERE id=$1", userID,
+	).Scan(&username); err != nil {
+		http.Error(w, "Failed to retrieve username: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]int{"id": taskID})
+	json.NewEncoder(w).Encode(map[string]any{
+		"id":              taskID,
+		"creatorUsername": username,
+	})
 }
 
 // ListTasksHandler handles GET /task
@@ -96,10 +108,22 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := internal.DB.Query(`
-		SELECT id, group_id, creator_user_id, creation_date, due_date, name, description, points_value
-		FROM tasks
-		WHERE group_id = $1`, groupID)
+	rows, err := internal.DB.Query(
+		`SELECT
+		  t.id,
+		  t.group_id,
+		  t.creator_user_id,
+		  u.username,
+		  t.creation_date,
+		  t.due_date,
+		  t.name,
+		  t.description,
+		  t.points_value
+		FROM tasks t
+		JOIN users u ON u.id = t.creator_user_id
+		WHERE t.group_id = $1`,
+		groupID,
+	)
 	if err != nil {
 		http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
 		return
@@ -109,7 +133,17 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 	var tasks []Task
 	for rows.Next() {
 		var t Task
-		if err := rows.Scan(&t.ID, &t.GroupID, &t.CreatorUserID, &t.CreationDate, &t.DueDate, &t.Name, &t.Description, &t.PointsValue); err != nil {
+		if err := rows.Scan(
+			&t.ID,
+			&t.GroupID,
+			&t.CreatorUserID,
+			&t.CreatorUsername,
+			&t.CreationDate,
+			&t.DueDate,
+			&t.Name,
+			&t.Description,
+			&t.PointsValue,
+		); err != nil {
 			http.Error(w, "Failed to scan task", http.StatusInternalServerError)
 			return
 		}
@@ -120,7 +154,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 
-// UpdateTasksHandler handles PUT /task
+// UpdateTaskHandler handles PUT /task
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -161,11 +195,11 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = internal.DB.Exec(
 		`UPDATE tasks
-            SET name=$1,
-                description=$2,
-                due_date=$3,
-                points_value=$4
-          WHERE id=$5`,
+		    SET name=$1,
+		        description=$2,
+		        due_date=$3,
+		        points_value=$4
+		  WHERE id=$5`,
 		req.Name, req.Description, req.DueDate, req.PointsValue, req.TaskID,
 	)
 	if err != nil {

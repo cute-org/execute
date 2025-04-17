@@ -326,6 +326,7 @@ Fetches all tasks for the authenticated user's group.
     "id": 1,
     "groupId": 1,
     "creatorUserId": 123,
+    "creatorUsername": "Username"
     "creationDate": "2025-04-15T08:00:00Z",
     "dueDate": "2025-04-20T10:00:00Z",
     "name": "Task Name",
@@ -336,6 +337,7 @@ Fetches all tasks for the authenticated user's group.
     "id": 2,
     "groupId": 1,
     "creatorUserId": 123,
+    "creatorUsername": "Username",
     "creationDate": "2025-04-15T09:00:00Z",
     "dueDate": "2025-04-25T10:00:00Z",
     "name": "Another Task",
