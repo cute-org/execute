@@ -277,3 +277,120 @@ Allows the creator of a group to update the group's name.
 - `405 Method Not Allowed` — Only PUT is allowed.
 - `500 Internal Server Error` — Failed to update group.
 - `404 Unauthorized/Not Found` — No session token found, group not found or token is invalid/expired.
+
+---
+
+## 🔒📋 POST /task
+
+Creates a new task for a group.
+
+*Request Body:*
+```json
+{
+  "groupId": 1,
+  "dueDate": "2025-04-20T10:00:00Z",
+  "name": "Task Name",
+  "description": "Task description",
+  "pointsValue": 10
+}
+```
+*Field Descriptions:*
+- `groupId` (integer) — The ID of the group to which the task belongs.
+- `dueDate` (string, ISO 8601 date-time) — The due date of the task.
+- `name` (string) — The name of the task.
+- `description` (string) — A description of the task.
+- `pointsValue` (integer) — The points associated with the task (must be ≥ 0).
+
+*Success Response:*
+    Status: `201 Created`
+```json
+{
+  "id": 1
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not a member of the specified group.
+- `500 Internal Server Error` — Failed to create task.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+## 🔒📋 GET /task
+
+Fetches all tasks for the authenticated user's group.
+
+*Success Response:*
+    Status: `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "groupId": 1,
+    "creatorUserId": 123,
+    "creationDate": "2025-04-15T08:00:00Z",
+    "dueDate": "2025-04-20T10:00:00Z",
+    "name": "Task Name",
+    "description": "Task description",
+    "pointsValue": 10
+  },
+  {
+    "id": 2,
+    "groupId": 1,
+    "creatorUserId": 123,
+    "creationDate": "2025-04-15T09:00:00Z",
+    "dueDate": "2025-04-25T10:00:00Z",
+    "name": "Another Task",
+    "description": "Another description",
+    "pointsValue": 15
+  }
+]
+```
+
+*Error Responses:*
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not a member of any group.
+- `500 Internal` Server Error — Failed to fetch tasks.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+🔒🔄 PUT /task
+
+Updates an existing task.
+
+*Request Body:*
+```json
+{
+  "taskId": 1,
+  "dueDate": "2025-04-22T10:00:00Z",
+  "name": "Updated Task Name",
+  "description": "Updated description",
+  "pointsValue": 20
+}
+```
+*Field Descriptions:*
+- `taskId` (integer) — The ID of the task to be updated.
+- `dueDate` (string, ISO 8601 date-time) — The updated due date of the task.
+- `name` (string) — The updated name of the task.
+- `description` (string) — The updated description of the task.
+- `pointsValue` (integer) — The updated points associated with the task (must be ≥ 0).
+
+*Success Response:*
+    Status: `200 OK`
+```json
+{
+  "message": "Task updated successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not the creator of the task.
+- `500 Internal` Server Error — Failed to update task.
+- `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+
+---

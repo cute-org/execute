@@ -95,6 +95,21 @@ func InitDB() {
 		log.Fatal("failed to alter users table to add group_id:", err)
 	}
 
+	createTasks := `
+    CREATE TABLE IF NOT EXISTS tasks (
+        id               SERIAL      PRIMARY KEY,
+        group_id         INTEGER     NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+        creator_user_id  INTEGER     NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+        creation_date    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        due_date         TIMESTAMPTZ NOT NULL,
+        name             TEXT        NOT NULL,
+        description      TEXT,
+        points_value     INTEGER     NOT NULL
+    );`
+	if _, err := DB.Exec(createTasks); err != nil {
+		log.Fatal("failed to create tasks table:", err)
+	}
+
 	// Configure the database connection pool
 	DB.SetMaxOpenConns(10)
 	DB.SetMaxIdleConns(5)
