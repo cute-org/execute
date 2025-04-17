@@ -158,10 +158,10 @@ Retrieves a user's avatar in base64 encoded format.
 
 *Success Response:*
 - Status: `200 OK`
-- Content-Type: `text/plain`
-```text
-
-data:image/png;base64,<base64_encoded_data>
+```json
+{
+  "avatar": "data:image/png;base64,<base64_encoded_data>"
+}
 ```
 
 *Error Responses:*
@@ -173,8 +173,10 @@ data:image/png;base64,<base64_encoded_data>
 *Usage in JS:*
 ```js
 fetch('/avatar?id=1')
-  .then(res => res.text())
-  .then(data => document.querySelector('img').src = data);
+  .then(res => res.json())
+  .then(data => {
+    document.querySelector('img').src = data.avatar;
+  });
 ```
 
 ---
