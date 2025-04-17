@@ -28,8 +28,8 @@ type resp struct {
 }
 
 type updateGroupReq struct {
-	GroupID int    `json:"groupId"`
-	Name    string `json:"name"`
+	Name string `json:"name"`
+	Code string `json:"code"`
 }
 
 // CreateGroupHandler handles POST /group
@@ -139,52 +139,47 @@ func JoinGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 // UpdateGroupHandler handles PUT /group
 func UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	userID, err := auth.GetUserID(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, "user not authenticated", http.StatusUnauthorized)
 		return
 	}
 
+	groupID, err := auth.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	// Decode request body for new group values
 	var req updateGroupReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if req.Name == "" {
-		http.Error(w, "New group name is required", http.StatusBadRequest)
+		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	var creatorID int
-	err = internal.DB.QueryRow(
-		"SELECT creator_user_id FROM groups WHERE id=$1", req.GroupID,
-	).Scan(&creatorID)
-	if err == sql.ErrNoRows {
-		http.Error(w, "Group not found", http.StatusNotFound)
-		return
-	} else if err != nil {
-		http.Error(w, "Lookup failed: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if creatorID != userID {
-		http.Error(w, "Forbidden: only the creator can edit", http.StatusForbidden)
-		return
-	}
-
-	_, err = internal.DB.Exec(
-		"UPDATE groups SET name=$1 WHERE id=$2",
-		req.Name, req.GroupID,
+	// Perform the update on the groups table, ensuring only the group's creator can modify it
+	result, err := internal.DB.Exec(
+		`UPDATE groups SET name = $1, code = $2 WHERE id = $3 AND creator_user_id = $4`,
+		req.Name, req.Code, groupID, userID,
 	)
 	if err != nil {
-		http.Error(w, "Update failed: "+err.Error(), http.StatusInternalServerError)
+		if internal.IsUniqueViolation(err) {
+			http.Error(w, "group code already in use", http.StatusConflict)
+			return
+		}
+		http.Error(w, "failed to update group", http.StatusInternalServerError)
 		return
 	}
 
+	// Check that a row was actually updated
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		http.Error(w, "no permission to update group or group not found", http.StatusForbidden)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, `{"message":"Group updated successfully"}`)
+	fmt.Fprintf(w, `{ "status": "updated", "group_id": %d }`, groupID)
 }

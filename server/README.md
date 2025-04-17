@@ -254,12 +254,10 @@ Allows the creator of a group to update the group's name.
 *Request Body:*
 ```json
 {
-  "groupId": 42,
   "name": "New Group Name"
 }
 ```
 *Field Descriptions:*
-- `groupId` (integer) — ID of the group to update.
 - `name` (string) — New group name (required).
 
 *Success Response:*
@@ -287,7 +285,6 @@ Creates a new task for a group.
 *Request Body:*
 ```json
 {
-  "groupId": 1,
   "dueDate": "2025-04-20T10:00:00Z",
   "name": "Task Name",
   "description": "Task description",
@@ -295,7 +292,6 @@ Creates a new task for a group.
 }
 ```
 *Field Descriptions:*
-- `groupId` (integer) — The ID of the group to which the task belongs.
 - `dueDate` (string, ISO 8601 date-time) — The due date of the task.
 - `name` (string) — The name of the task.
 - `description` (string) — A description of the task.
