@@ -32,7 +32,7 @@ func main() {
 		"GET": user.UsersHandler,
 		"PUT": user.EditUserHandler,
 	})))
-	mux.Handle("/avatar", middleware.ApplyImageMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+	mux.Handle("/avatar", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)

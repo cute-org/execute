@@ -113,8 +113,3 @@ func authMiddleware(next http.Handler) http.Handler {
 func ApplyAuthMiddlewares(handler http.Handler) http.Handler {
 	return rateLimitMiddleware(authMiddleware(setContentTypeMiddleware(handler)))
 }
-
-// Helper function for displaying images
-func ApplyImageMiddlewares(handler http.Handler) http.Handler {
-	return rateLimitMiddleware(handler)
-}
