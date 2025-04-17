@@ -11,65 +11,70 @@ import (
 	"execute/internal/handlers/auth"
 )
 
+type EditUserRequest struct {
+	Username    *string `json:"username,omitempty"`
+	Password    *string `json:"password,omitempty"`    // Current password
+	NewPassword *string `json:"newpassword,omitempty"` // New password
+	Avatar      *string `json:"avatar,omitempty"`
+}
+
+type EditUserResponse struct {
+	Status string `json:"status"`
+}
+
 // EditUserHandler handles the /user PUT endpoint
 func EditUserHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
 	contentType := r.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		handleJSONUpdate(w, r)
+		handleJSONUpdate(w, r, userID)
 	} else if strings.HasPrefix(contentType, "multipart/form-data") {
-		handleMultipartUpdate(w, r)
+		handleMultipartUpdate(w, r, userID)
 	} else {
 		http.Error(w, "Unsupported Content-Type", http.StatusUnsupportedMediaType)
 	}
 }
 
 // JSON handling
-func handleJSONUpdate(w http.ResponseWriter, r *http.Request) {
-	type EditUserRequest struct {
-		ID          int     `json:"id"`
-		Username    *string `json:"username"`
-		Password    *string `json:"password"`    // Current password
-		NewPassword *string `json:"newpassword"` // New password (optional)
-		Avatar      *string `json:"avatar"`
-	}
-
+func handleJSONUpdate(w http.ResponseWriter, r *http.Request, userID int) {
 	var req EditUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if req.ID == 0 || req.Password == nil {
-		http.Error(w, "User ID and current password are required", http.StatusBadRequest)
+	if req.Password == nil {
+		http.Error(w, "Current password is required", http.StatusBadRequest)
 		return
 	}
 
 	// Retrieve the user's stored password hash and salt from the database
-	var storedPasswordHash string
-	var storedSalt string
-	err := internal.DB.QueryRow("SELECT passwordhash, salt FROM users WHERE id = $1", req.ID).Scan(&storedPasswordHash, &storedSalt)
-	if err != nil {
+	var storedHash, storedSaltStr string
+	if err := internal.DB.QueryRow(
+		"SELECT passwordhash, salt FROM users WHERE id=$1", userID,
+	).Scan(&storedHash, &storedSaltStr); err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
 	// Convert storedSalt (string) to []byte before passing it to HashPassword
-	saltBytes, err := auth.DecodeSalt(storedSalt)
+	saltBytes, err := auth.DecodeSalt(storedSaltStr)
 	if err != nil {
 		http.Error(w, "Server error decoding salt", http.StatusInternalServerError)
 		return
 	}
-
-	// Verify the provided password against the stored hash and salt
-	passwordHash := auth.HashPassword(*req.Password, saltBytes)
-	if passwordHash != storedPasswordHash {
+	if auth.HashPassword(*req.Password, saltBytes) != storedHash {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
 		return
 	}
 
-	// Build dynamic update
 	var updates []string
-	var args []interface{}
+	var args []any
 	argPos := 1
 
 	if req.Username != nil {
@@ -84,19 +89,16 @@ func handleJSONUpdate(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "New password is too short", http.StatusBadRequest)
 			return
 		}
-
-		salt, err := auth.GenerateSalt()
+		newSalt, err := auth.GenerateSalt()
 		if err != nil {
 			http.Error(w, "Failed to generate salt", http.StatusInternalServerError)
 			return
 		}
-
-		newPasswordHash := auth.HashPassword(*req.NewPassword, salt)
 		updates = append(updates, "salt = $"+strconv.Itoa(argPos))
-		args = append(args, auth.EncodeSalt(salt))
+		args = append(args, auth.EncodeSalt(newSalt))
 		argPos++
 		updates = append(updates, "passwordhash = $"+strconv.Itoa(argPos))
-		args = append(args, newPasswordHash)
+		args = append(args, auth.HashPassword(*req.NewPassword, newSalt))
 		argPos++
 	}
 
@@ -112,43 +114,31 @@ func handleJSONUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	args = append(args, req.ID)
+	args = append(args, userID)
 	query := "UPDATE users SET " + strings.Join(updates, ", ") + " WHERE id = $" + strconv.Itoa(argPos)
-
-	_, err = internal.DB.Exec(query, args...)
-	if err != nil {
+	if _, err := internal.DB.Exec(query, args...); err != nil {
 		http.Error(w, "Failed to update user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"updated"}`))
+	json.NewEncoder(w).Encode(EditUserResponse{Status: "updated"})
 }
 
 // Multipart (file) upload handling
-func handleMultipartUpdate(w http.ResponseWriter, r *http.Request) {
-	// Limit request body to 10MB
-	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10MB
-
-	err := r.ParseMultipartForm(10 << 20)
-	if err != nil {
+func handleMultipartUpdate(w http.ResponseWriter, r *http.Request, userID int) {
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		http.Error(w, "Could not parse form or file too big: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	idStr := r.FormValue("id")
-	if idStr == "" {
-		http.Error(w, "User ID is required", http.StatusBadRequest)
-		return
-	}
-	id, _ := strconv.Atoi(idStr)
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	var avatarBytes []byte
-	file, _, err := r.FormFile("avatar")
-	if err == nil {
+	if file, _, err := r.FormFile("avatar"); err == nil {
 		defer file.Close()
 		avatarBytes, err = io.ReadAll(file)
 		if err != nil {
@@ -161,9 +151,8 @@ func handleMultipartUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Build dynamic update
 	var updates []string
-	var args []interface{}
+	var args []any
 	argPos := 1
 
 	if username != "" {
@@ -196,15 +185,14 @@ func handleMultipartUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	args = append(args, id)
+	args = append(args, userID)
 	query := "UPDATE users SET " + strings.Join(updates, ", ") + " WHERE id = $" + strconv.Itoa(argPos)
-
-	_, err = internal.DB.Exec(query, args...)
-	if err != nil {
+	if _, err := internal.DB.Exec(query, args...); err != nil {
 		http.Error(w, "Failed to update user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"updated"}`))
+	json.NewEncoder(w).Encode(EditUserResponse{Status: "updated"})
 }

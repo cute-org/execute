@@ -118,7 +118,6 @@ Updates an existing user's information.
 *Request Body:*
 ```json
 {
-  "id": 123,
   "username": "newusername",
   "password": "currentPassword123",
   "newpassword": "NewSecurePass456",
@@ -126,7 +125,6 @@ Updates an existing user's information.
 }
 ```
 *Field Descriptions:*
-- `id` (integer) — User ID (required).
 - `username` (string) — New username (optional).
 - `password` (string) — Current password (required for verification).
 - `newpassword` (string) — New password (optional, must be at least 6 characters).
@@ -160,10 +158,10 @@ Retrieves a user's avatar in base64 encoded format.
 
 *Success Response:*
 - Status: `200 OK`
-- Content-Type: `text/plain`
-```text
-
-data:image/png;base64,<base64_encoded_data>
+```json
+{
+  "avatar": "data:image/png;base64,<base64_encoded_data>"
+}
 ```
 
 *Error Responses:*
@@ -175,8 +173,10 @@ data:image/png;base64,<base64_encoded_data>
 *Usage in JS:*
 ```js
 fetch('/avatar?id=1')
-  .then(res => res.text())
-  .then(data => document.querySelector('img').src = data);
+  .then(res => res.json())
+  .then(data => {
+    document.querySelector('img').src = data.avatar;
+  });
 ```
 
 ---
@@ -254,19 +254,20 @@ Allows the creator of a group to update the group's name.
 *Request Body:*
 ```json
 {
-  "groupId": 42,
   "name": "New Group Name"
+  "code": "new-group-code"
 }
 ```
 *Field Descriptions:*
-- `groupId` (integer) — ID of the group to update.
 - `name` (string) — New group name (required).
+- `code` (string) — New group code (optional, must be unique).
 
 *Success Response:*
 - Status: `200 OK`
 ```json
 {
-  "message": "Group updated successfully"
+  "message": "Group updated successfully",
+  "group_id": 123
 }
 ```
 
@@ -287,7 +288,6 @@ Creates a new task for a group.
 *Request Body:*
 ```json
 {
-  "groupId": 1,
   "dueDate": "2025-04-20T10:00:00Z",
   "name": "Task Name",
   "description": "Task description",
@@ -295,7 +295,6 @@ Creates a new task for a group.
 }
 ```
 *Field Descriptions:*
-- `groupId` (integer) — The ID of the group to which the task belongs.
 - `dueDate` (string, ISO 8601 date-time) — The due date of the task.
 - `name` (string) — The name of the task.
 - `description` (string) — A description of the task.
@@ -330,6 +329,7 @@ Fetches all tasks for the authenticated user's group.
     "id": 1,
     "groupId": 1,
     "creatorUserId": 123,
+    "creatorUsername": "Username"
     "creationDate": "2025-04-15T08:00:00Z",
     "dueDate": "2025-04-20T10:00:00Z",
     "name": "Task Name",
@@ -340,6 +340,7 @@ Fetches all tasks for the authenticated user's group.
     "id": 2,
     "groupId": 1,
     "creatorUserId": 123,
+    "creatorUsername": "Username",
     "creationDate": "2025-04-15T09:00:00Z",
     "dueDate": "2025-04-25T10:00:00Z",
     "name": "Another Task",

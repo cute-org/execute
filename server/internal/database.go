@@ -12,6 +12,7 @@ import (
 
 var DB *sql.DB
 
+// IsUniqueViolation reports whether an error is a PostgreSQL unique violation.
 func IsUniqueViolation(err error) bool {
 	if pgErr, ok := err.(*pq.Error); ok {
 		return pgErr.Code == "23505"
@@ -19,9 +20,9 @@ func IsUniqueViolation(err error) bool {
 	return false
 }
 
+// InitDB initializes the global DB handle, creates required tables, and sets up retry logic on connection.
 func InitDB() {
-	var err error
-
+	// Read configuration from environment
 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		log.Fatal("DB_HOST environment variable is required")
@@ -52,19 +53,29 @@ func InitDB() {
 		log.Fatal("DB_SSLMODE environment variable is required")
 	}
 
+	// Build connection string
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		host, port, user, password, dbname, sslmode)
 
+	// Open database handle
+	var err error
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("failed to open database:", err)
+		log.Fatalf("failed to open database: %v", err)
 	}
 
-	err = DB.Ping()
-	if err != nil {
-		log.Fatal("failed to connect to the database:", err)
+	// Retry ping until successful
+	for {
+		err = DB.Ping()
+		if err == nil {
+			break
+		}
+		log.Printf("failed to connect to database: %v; retrying in 10 seconds...", err)
+		time.Sleep(10 * time.Second)
 	}
+	log.Println("successfully connected to database")
 
+	// Create tables if they do not exist
 	createUsers := `
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
