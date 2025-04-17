@@ -118,7 +118,6 @@ Updates an existing user's information.
 *Request Body:*
 ```json
 {
-  "id": 123,
   "username": "newusername",
   "password": "currentPassword123",
   "newpassword": "NewSecurePass456",
@@ -126,7 +125,6 @@ Updates an existing user's information.
 }
 ```
 *Field Descriptions:*
-- `id` (integer) — User ID (required).
 - `username` (string) — New username (optional).
 - `password` (string) — Current password (required for verification).
 - `newpassword` (string) — New password (optional, must be at least 6 characters).
