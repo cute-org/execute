@@ -180,3 +180,217 @@ fetch('/avatar?id=1')
 ```
 
 ---
+
+## 🔒👥 POST /group
+
+Creates a new group.
+
+*Request Body:*
+```json
+{
+  "name": "Group Name"
+}
+```
+*Field Descriptions:*
+- `name` (string) — Name of the group (required).
+
+*Success Response:*
+- Status: `201 Created`
+```json
+{
+  "id": 42,
+  "code": "AB12CD"
+}
+```
+*Field Descriptions:*
+- `id` (integer) — Unique group ID.
+- `code` (string) — Join code for inviting others.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid or missing group name.
+- `401 Unauthorized` — Not logged in.
+- `405 Method Not Allowed` — Only POST is allowed.
+- `500 Internal Server Error` — Failed to generate or insert group.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+## 🔒👥➕ POST /group/join
+
+Allows a user to join an existing group using a join code. Only users not already in a group can join.
+
+*Request Body:*
+```json
+{
+  "code": "AB12CD"
+}
+```
+*Field Descriptions:*
+- `code` (string) — Join code for the group.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Joined group successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing join code or invalid JSON.
+- `401 Unauthorized` — Not logged in.
+- `404 Not Found` — Invalid or non-existent group code.
+- `405 Method Not` Allowed — Only POST is allowed.
+- `409 Conflict` — User is already in a group.
+- `500 Internal Server Error` — Database error during join.
+- `404 Unauthorized/Not Found` — No session token found, invalid/non-existent group code or token is invalid/expired.
+
+---
+
+## 🔒👥✏️ PUT /group
+
+Allows the creator of a group to update the group's name.
+
+*Request Body:*
+```json
+{
+  "groupId": 42,
+  "name": "New Group Name"
+}
+```
+*Field Descriptions:*
+- `groupId` (integer) — ID of the group to update.
+- `name` (string) — New group name (required).
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Group updated successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid group name.
+- `401 Unauthorized` — Not logged in.
+- `403 Forbidden` — User is not the group creator.
+- `405 Method Not Allowed` — Only PUT is allowed.
+- `500 Internal Server Error` — Failed to update group.
+- `404 Unauthorized/Not Found` — No session token found, group not found or token is invalid/expired.
+
+---
+
+## 🔒📋 POST /task
+
+Creates a new task for a group.
+
+*Request Body:*
+```json
+{
+  "groupId": 1,
+  "dueDate": "2025-04-20T10:00:00Z",
+  "name": "Task Name",
+  "description": "Task description",
+  "pointsValue": 10
+}
+```
+*Field Descriptions:*
+- `groupId` (integer) — The ID of the group to which the task belongs.
+- `dueDate` (string, ISO 8601 date-time) — The due date of the task.
+- `name` (string) — The name of the task.
+- `description` (string) — A description of the task.
+- `pointsValue` (integer) — The points associated with the task (must be ≥ 0).
+
+*Success Response:*
+    Status: `201 Created`
+```json
+{
+  "id": 1
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not a member of the specified group.
+- `500 Internal Server Error` — Failed to create task.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+## 🔒📋 GET /task
+
+Fetches all tasks for the authenticated user's group.
+
+*Success Response:*
+    Status: `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "groupId": 1,
+    "creatorUserId": 123,
+    "creationDate": "2025-04-15T08:00:00Z",
+    "dueDate": "2025-04-20T10:00:00Z",
+    "name": "Task Name",
+    "description": "Task description",
+    "pointsValue": 10
+  },
+  {
+    "id": 2,
+    "groupId": 1,
+    "creatorUserId": 123,
+    "creationDate": "2025-04-15T09:00:00Z",
+    "dueDate": "2025-04-25T10:00:00Z",
+    "name": "Another Task",
+    "description": "Another description",
+    "pointsValue": 15
+  }
+]
+```
+
+*Error Responses:*
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not a member of any group.
+- `500 Internal` Server Error — Failed to fetch tasks.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+🔒🔄 PUT /task
+
+Updates an existing task.
+
+*Request Body:*
+```json
+{
+  "taskId": 1,
+  "dueDate": "2025-04-22T10:00:00Z",
+  "name": "Updated Task Name",
+  "description": "Updated description",
+  "pointsValue": 20
+}
+```
+*Field Descriptions:*
+- `taskId` (integer) — The ID of the task to be updated.
+- `dueDate` (string, ISO 8601 date-time) — The updated due date of the task.
+- `name` (string) — The updated name of the task.
+- `description` (string) — The updated description of the task.
+- `pointsValue` (integer) — The updated points associated with the task (must be ≥ 0).
+
+*Success Response:*
+    Status: `200 OK`
+```json
+{
+  "message": "Task updated successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not the creator of the task.
+- `500 Internal` Server Error — Failed to update task.
+- `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+
+---
