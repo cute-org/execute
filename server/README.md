@@ -180,3 +180,100 @@ fetch('/avatar?id=1')
 ```
 
 ---
+
+## 🔒👥 POST /group
+
+Creates a new group.
+
+*Request Body:*
+```json
+{
+  "name": "Group Name"
+}
+```
+*Field Descriptions:*
+- `name` (string) — Name of the group (required).
+
+*Success Response:*
+- Status: `201 Created`
+```json
+{
+  "id": 42,
+  "code": "AB12CD"
+}
+```
+*Field Descriptions:*
+- `id` (integer) — Unique group ID.
+- `code` (string) — Join code for inviting others.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid or missing group name.
+- `401 Unauthorized` — Not logged in.
+- `405 Method Not Allowed` — Only POST is allowed.
+- `500 Internal Server Error` — Failed to generate or insert group.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
+## 🔒👥➕ POST /group/join
+
+Allows a user to join an existing group using a join code. Only users not already in a group can join.
+
+*Request Body:*
+```json
+{
+  "code": "AB12CD"
+}
+```
+*Field Descriptions:*
+- `code` (string) — Join code for the group.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Joined group successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing join code or invalid JSON.
+- `401 Unauthorized` — Not logged in.
+- `404 Not Found` — Invalid or non-existent group code.
+- `405 Method Not` Allowed — Only POST is allowed.
+- `409 Conflict` — User is already in a group.
+- `500 Internal Server Error` — Database error during join.
+- `404 Unauthorized/Not Found` — No session token found, invalid/non-existent group code or token is invalid/expired.
+
+---
+
+## 🔒👥✏️ PUT /group
+
+Allows the creator of a group to update the group's name.
+
+*Request Body:*
+```json
+{
+  "groupId": 42,
+  "name": "New Group Name"
+}
+```
+*Field Descriptions:*
+- `groupId` (integer) — ID of the group to update.
+- `name` (string) — New group name (required).
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Group updated successfully"
+}
+```
+
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid group name.
+- `401 Unauthorized` — Not logged in.
+- `403 Forbidden` — User is not the group creator.
+- `405 Method Not Allowed` — Only PUT is allowed.
+- `500 Internal Server Error` — Failed to update group.
+- `404 Unauthorized/Not Found` — No session token found, group not found or token is invalid/expired.

@@ -7,6 +7,7 @@ import (
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
+	"execute/internal/handlers/group"
 	"execute/internal/handlers/user"
 	"execute/internal/middleware"
 	"execute/internal/utils"
@@ -33,6 +34,13 @@ func main() {
 		"PUT": user.EditUserHandler,
 	})))
 	mux.Handle("/avatar", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+
+	// GROUP
+	mux.Handle("/group", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"POST": group.CreateGroupHandler,
+		"PUT":  group.UpdateGroupHandler,
+	})))
+	mux.Handle("/group/join", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.JoinGroupHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)

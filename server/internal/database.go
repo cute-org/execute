@@ -65,7 +65,7 @@ func InitDB() {
 		log.Fatal("failed to connect to the database:", err)
 	}
 
-	createTable := `
+	createUsers := `
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
@@ -73,10 +73,26 @@ func InitDB() {
         passwordhash TEXT NOT NULL,
         avatar BYTEA
     );`
+	if _, err := DB.Exec(createUsers); err != nil {
+		log.Fatal("failed to create users table:", err)
+	}
 
-	_, err = DB.Exec(createTable)
-	if err != nil {
-		log.Fatal("failed to create table:", err)
+	createGroups := `
+    CREATE TABLE IF NOT EXISTS groups (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT NOT NULL UNIQUE,
+        creator_user_id INTEGER NOT NULL REFERENCES users(id)
+    );`
+	if _, err := DB.Exec(createGroups); err != nil {
+		log.Fatal("failed to create groups table:", err)
+	}
+
+	alterUsersTable := `
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS group_id INTEGER REFERENCES groups(id) ON DELETE SET NULL;`
+	if _, err := DB.Exec(alterUsersTable); err != nil {
+		log.Fatal("failed to alter users table to add group_id:", err)
 	}
 
 	// Configure the database connection pool
