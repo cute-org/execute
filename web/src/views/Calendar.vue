@@ -88,7 +88,7 @@
             </button>
 
             <!-- Today button nav -->
-            <button @click="today" class="bg-blue-600 text-white px-4 py-2 rounded-md">
+            <button @click="today" class="bg-borderColor text-white px-4 py-2 rounded-md">
               Today
             </button>
 
@@ -112,12 +112,12 @@
             :key="index" 
             class="flex-1 border-r border-gray-700 text-center py-2"
           >
-            <div class="font-bold">{{ formatWeekday(day) }}</div>
+            <div class="font-bold text-xl">{{ formatWeekday(day) }}</div>
             <div class="font-bold text-xs">{{ formatDayNumber(day) }}</div>
             <div class="text-xs text-gray-300">{{ isToday(day) ? 'Today' : '' }}</div>
           </div>
         </div>
-
+        
         <div class="flex-grow overflow-y-auto">
             <!-- grid for calendar -->
             <div class="grid grid-cols-7 h-full "> 
