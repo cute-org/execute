@@ -14,13 +14,8 @@ type User struct {
 	Username string `json:"username"`
 }
 
-// UsersHandler handles the /users GET endpoint
+// UsersHandler handles the /user GET endpoint
 func UsersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
 	rows, err := internal.DB.Query("SELECT id, username FROM users")
 	if err != nil {
 		http.Error(w, "Failed to query users: "+err.Error(), http.StatusInternalServerError)

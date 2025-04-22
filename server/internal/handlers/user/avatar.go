@@ -3,12 +3,16 @@ package user
 import (
 	"database/sql"
 	"encoding/base64"
-	"log"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"execute/internal"
 )
+
+type AvatarResponse struct {
+	Avatar string `json:"avatar"`
+}
 
 // ServeAvatarHandler handles the /avatar GET endpoint
 func ServeAvatarHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +50,7 @@ func ServeAvatarHandler(w http.ResponseWriter, r *http.Request) {
 	encoded := base64.StdEncoding.EncodeToString(avatarData)
 	dataURL := "data:image/png;base64," + encoded
 
-	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write([]byte(dataURL)); err != nil {
-		log.Printf("Failed to write base64 avatar: %v", err)
-	}
+	json.NewEncoder(w).Encode(AvatarResponse{Avatar: dataURL})
 }
