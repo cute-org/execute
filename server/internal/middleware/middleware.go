@@ -87,24 +87,10 @@ func setContentTypeMiddleware(next http.Handler) http.Handler {
 }
 
 // Helper function to apply multiple middlewares to a handler
-func ApplyMiddlewares(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") 	// Adjust as needed
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE") // Add the methods you need
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Add the headers your frontend might send
-		w.Header().Set("Access-Control-Allow-Credentials", "true")                   // If you need to handle cookies
-
-		// Handle preflight requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the next handler in the chain
-		next.ServeHTTP(w, r)
-	})
+func ApplyMiddlewares(handler http.Handler) http.Handler {
+	return rateLimitMiddleware(setContentTypeMiddleware(handler))
 }
+
 // authMiddleware is a middleware that checks for a valid session cookie.
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -124,25 +110,6 @@ func authMiddleware(next http.Handler) http.Handler {
 }
 
 // Helper function to apply multiple middlewares to a handler
-
-func ApplyAuthMiddlewares(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Apply authentication logic here (you likely already have this)
-
-		// Also apply CORS headers here if you want them for authenticated routes as well
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Adjust as needed
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE") // Add the methods you need
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Add the headers your frontend might send
-		w.Header().Set("Access-Control-Allow-Credentials", "true")                   // If you need to handle cookies
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the next handler in the chain
-		next.ServeHTTP(w, r)
-	})
+func ApplyAuthMiddlewares(handler http.Handler) http.Handler {
+	return rateLimitMiddleware(authMiddleware(setContentTypeMiddleware(handler)))
 }
-
-

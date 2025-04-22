@@ -24,7 +24,6 @@ func main() {
 
 	// Wrap handlers with ApplyMiddlewares or ApplyAuthMidlewares!
 
-	
 	// AUTH
 	mux.Handle("/register", middleware.ApplyMiddlewares(http.HandlerFunc(auth.RegisterHandler)))
 	mux.Handle("/login", middleware.ApplyMiddlewares(http.HandlerFunc(auth.LoginHandler)))
