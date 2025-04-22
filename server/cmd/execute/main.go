@@ -7,6 +7,8 @@ import (
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
+	"execute/internal/handlers/group"
+	"execute/internal/handlers/task"
 	"execute/internal/handlers/user"
 	"execute/internal/middleware"
 	"execute/internal/utils"
@@ -21,12 +23,33 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Wrap handlers with ApplyMiddlewares or ApplyAuthMidlewares!
+
+	
+	// AUTH
 	mux.Handle("/register", middleware.ApplyMiddlewares(http.HandlerFunc(auth.RegisterHandler)))
 	mux.Handle("/login", middleware.ApplyMiddlewares(http.HandlerFunc(auth.LoginHandler)))
 	mux.Handle("/validate", middleware.ApplyAuthMiddlewares(http.HandlerFunc(auth.ValidateHandler)))
-	mux.Handle("/users", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UsersHandler)))
-	mux.Handle("/user-edit", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.EditUserHandler)))
-	mux.Handle("/avatar", middleware.ApplyImageMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+
+	// USER
+	mux.Handle("/user", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"GET": user.UsersHandler,
+		"PUT": user.EditUserHandler,
+	})))
+	mux.Handle("/avatar", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+
+	// GROUP
+	mux.Handle("/group", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"POST": group.CreateGroupHandler,
+		"PUT":  group.UpdateGroupHandler,
+	})))
+	mux.Handle("/group/join", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.JoinGroupHandler)))
+
+	// TASK
+	mux.Handle("/task", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"GET":  task.ListTasksHandler,
+		"POST": task.CreateTaskHandler,
+		"PUT":  task.UpdateTaskHandler,
+	})))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
