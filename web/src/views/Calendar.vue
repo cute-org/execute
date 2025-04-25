@@ -1,6 +1,7 @@
 <template>
   <div class="flex h-screen w-screen bg-black text-white overflow-hidden">
    <!-- Left navigation bar -->
+<<<<<<< Updated upstream
     
    <div class="w-16 h-full bg-navBar flex flex-col border-r border-gray-800">
      <!-- Back button -->
@@ -65,6 +66,15 @@
         </button>
       </div>
    </div>
+=======
+   <NavigationBar 
+      activeSection="calendar"
+      @back="goBack"
+      @navigate="navigateTo"
+      @toggle-settings="toggleSettings"
+      @toggle-info="toggleInfo"
+    />
+>>>>>>> Stashed changes
 
    <!-- Main content area -->
    <div class="flex-1 flex flex-col">
@@ -77,6 +87,7 @@
      
      <!-- Main content area -->
      <div class="flex-grow bg-black">
+<<<<<<< Updated upstream
         <div class="flex justify-between items-center">
           <div class="flex items-center m-4">
 
@@ -160,57 +171,25 @@
         <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
           <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
         </TransitionChild>
+=======
+       <!-- Empty content area -->
+     </div>
+     
+   </div>
+ </div>
+>>>>>>> Stashed changes
 
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-              <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900">That is a placeholder for settings popup dialog </DialogTitle>
-                      <div class="mt-2">
-                        <p class="text-sm text-gray-500">12!21(42"/.)/[[]=->..;`~`""]</p>
-                      </div>
-                    </div>
-                  </div>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <!-- Dialog settings & design -->
+    <SettingsDialog v-model:show="openSettings"  @navigate="navigateTo" />
     <!-- Info Dialog -->
-    <TransitionRoot as="template" :show="openInfo">
-      <Dialog class="relative z-10" @close="openInfo = false">
-        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-              <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900">That site got created by ExeCute Organization</DialogTitle>
-                      <div class="mt-2">
-                        <p class="text-sm text-gray-500">Thank you for using it, enjoy</p>
-                      </div>
-                    </div>
-                  </div>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
-    
+    <InfoDialog v-model:show="openInfo" />
 </template>
 
 <!-- Setting up router navigation  -->
 <script lang="ts" setup>
   import { useRouter } from 'vue-router'
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+<<<<<<< Updated upstream
   import { computed, ref } from 'vue';
   import { 
   format, 
@@ -225,20 +204,31 @@
 } from 'date-fns';
 //Language for dates, zone
 import { enAU } from 'date-fns/locale';
+=======
+  import { ref } from 'vue';
+  import NavigationBar from './NavigationBar.vue'
+  import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
+  import InfoDialog from './PresetsDialogs/InfoDialog.vue'
+>>>>>>> Stashed changes
 
 
    const router = useRouter()
-   // Setting going to Dashboard from Login screen
-   const goToDashboard = () => {
-   router.push('/dashboard')
-   }
-   const goToUserInfo = () => {
-   router.push('/userinfo')
-   }
-   const goToTeamsInfo = () => {
-   router.push('/teaminfo')
-   }
+   //Navigation
+   const navigateTo = (section) => {
+  if (section === 'dashboard') {
+    router.push('/dashboard')
+  } else if (section === 'teamsInfo') {
+    router.push('/teamsInfo')
+  } else if (section === 'userInfo') {
+    router.push('/userInfo')
+  } else if (section === 'calendar') {
+    router.push('/calendar')
+  } else if (section === 'logout') {
+    router.push('/')
+  }
+}
 
+<<<<<<< Updated upstream
    const openSettings = ref(false)
    const openInfo = ref(false)
 
@@ -288,4 +278,17 @@ import { enAU } from 'date-fns/locale';
     
     //Delete later when you delete placeholder for elements inside
     const active = ref(false)
+=======
+  const openSettings = ref(false)
+  const openInfo = ref(false)
+
+  const toggleSettings = () => {
+    openSettings.value = !openSettings.value
+  }
+
+  const toggleInfo = () => {
+    openInfo.value = !openInfo.value
+  }
+   
+>>>>>>> Stashed changes
 </script>
