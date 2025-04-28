@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
@@ -16,6 +17,10 @@ type EditUserRequest struct {
 	Password    *string `json:"password,omitempty"`    // Current password
 	NewPassword *string `json:"newpassword,omitempty"` // New password
 	Avatar      *string `json:"avatar,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
+	Phone       *string `json:"phone,omitempty"`
+	BirthDate   *string `json:"birth_date,omitempty"`
+	Role        *string `json:"role,omitempty"`
 }
 
 type EditUserResponse struct {
@@ -109,6 +114,32 @@ func handleJSONUpdate(w http.ResponseWriter, r *http.Request, userID int) {
 		argPos++
 	}
 
+	if req.DisplayName != nil {
+		updates = append(updates, "display_name = $"+strconv.Itoa(argPos))
+		args = append(args, *req.DisplayName)
+		argPos++
+	}
+	if req.Phone != nil {
+		updates = append(updates, "phone = $"+strconv.Itoa(argPos))
+		args = append(args, *req.Phone)
+		argPos++
+	}
+	if req.BirthDate != nil {
+		// Expect YYYY-MM-DD format
+		if _, err := time.Parse("2006-01-02", *req.BirthDate); err != nil {
+			http.Error(w, "Invalid birth_date format, use YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+		updates = append(updates, "birth_date = $"+strconv.Itoa(argPos))
+		args = append(args, *req.BirthDate)
+		argPos++
+	}
+	if req.Role != nil {
+		updates = append(updates, "role = $"+strconv.Itoa(argPos))
+		args = append(args, *req.Role)
+		argPos++
+	}
+
 	if len(updates) == 0 {
 		http.Error(w, "No fields to update", http.StatusBadRequest)
 		return
@@ -134,8 +165,13 @@ func handleMultipartUpdate(w http.ResponseWriter, r *http.Request, userID int) {
 		return
 	}
 
+	// Form values
 	username := r.FormValue("username")
 	password := r.FormValue("password")
+	displayName := r.FormValue("display_name")
+	phone := r.FormValue("phone")
+	birthDate := r.FormValue("birth_date")
+	role := r.FormValue("role")
 
 	var avatarBytes []byte
 	if file, _, err := r.FormFile("avatar"); err == nil {
@@ -177,6 +213,31 @@ func handleMultipartUpdate(w http.ResponseWriter, r *http.Request, userID int) {
 	if avatarBytes != nil {
 		updates = append(updates, "avatar = $"+strconv.Itoa(argPos))
 		args = append(args, avatarBytes)
+		argPos++
+	}
+	if displayName != "" {
+		updates = append(updates, "display_name = $"+strconv.Itoa(argPos))
+		args = append(args, displayName)
+		argPos++
+	}
+	if phone != "" {
+		updates = append(updates, "phone = $"+strconv.Itoa(argPos))
+		args = append(args, phone)
+		argPos++
+	}
+	if birthDate != "" {
+		// Expect YYYY-MM-DD format
+		if _, err := time.Parse("2006-01-02", birthDate); err != nil {
+			http.Error(w, "Invalid birth_date format, use YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+		updates = append(updates, "birth_date = $"+strconv.Itoa(argPos))
+		args = append(args, birthDate)
+		argPos++
+	}
+	if role != "" {
+		updates = append(updates, "role = $"+strconv.Itoa(argPos))
+		args = append(args, role)
 		argPos++
 	}
 

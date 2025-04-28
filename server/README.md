@@ -132,15 +132,15 @@ Fetches all informations about current user from the database using his token.
 }
 ```
 *Field Descriptions:*
-- id (integer) — Unique identifier of the user.
-- username (string) — The user’s login name.
-- display_name (string, optional) — The user’s chosen display name/profile name.
-- birthdate (string, optional) — Date of birth in YYYY-MM-DD format.
-- phone (string, optional) — User’s phone number in international format.
-- role (string, optional) — The user's role.
-- group_id (integer, optional) — Identifier for the group the user belongs to.
-- created_at (string) — ISO-8601 timestamp for when the user was created.
-- updated_at (string) — ISO-8601 timestamp for the last time the user’s profile was updated.
+- `id` (integer) — Unique identifier of the user.
+- `username` (string) — The user’s login name.
+- `display_name` (string, optional) — The user’s chosen display name/profile name.
+- `birthdate` (string, optional) — Date of birth in YYYY-MM-DD format.
+- `phone` (string, optional) — User’s phone number in international format.
+- `role` (string, optional) — The user's role.
+- `group_id` (integer, optional) — Identifier for the group the user belongs to.
+- `created_at` (string) — ISO-8601 timestamp for when the user was created.
+- `updated_at` (string) — ISO-8601 timestamp for the last time the user’s profile was updated.
 
 *Error Responses:*
 - `500 Internal Server Error` — Failed to query users.
@@ -157,7 +157,11 @@ Updates an existing user's information.
   "username": "newusername",
   "password": "currentPassword123",
   "newpassword": "NewSecurePass456",
-  "avatar": "base64encodedImage=="
+  "avatar": "base64encodedImage==",
+  "display_name": "Jane Doe",
+  "phone": "+1234567890",
+  "birth_date": "1990-05-20",
+  "role": "admin"
 }
 ```
 *Field Descriptions:*
@@ -165,6 +169,10 @@ Updates an existing user's information.
 - `password` (string) — Current password (required for verification).
 - `newpassword` (string) — New password (optional, must be at least 6 characters).
 - `avatar` (string) — Base64-encoded avatar image (optional).
+- `display_name` (string) — Display name shown to other users (optional).
+- `phone` (string) — User’s phone number (optional).
+- `birth_date` (string) — User’s birth date in YYYY-MM-DD format (optional).
+- `role` (string) — User role (e.g. admin, user, etc.) (optional).
 
 *Success Response:*
 - Status: `200 OK`
