@@ -8,7 +8,7 @@
 
 Registers a new user.
 
-**Request Body:**
+*Request Body:*
 ```json
 {
   "username": "exampleuser",
@@ -39,7 +39,7 @@ Registers a new user.
 
 Login to account and grant a token with a cookie.
 
-**Request Body:**
+*Request Body:*
 ```json
 {
   "username": "exampleuser",
@@ -106,6 +106,7 @@ Fetches all users from the database with their IDs and usernames.
   }
 ]
 ```
+
 *Error Responses:*
 - `500 Internal Server Error` — Failed to query users.
 - `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
@@ -148,7 +149,7 @@ Fetches all informations about current user from the database using his token.
 
 ---
 
-## 🔒🔧 PUT /user
+### 🔒🔧 PUT /user
 
 Updates an existing user's information.
 *Request Body:*
@@ -193,7 +194,7 @@ Updates an existing user's information.
 
 ---
 
-## 🔒🖼️ GET /avatar
+### 🔒🖼️ GET /avatar
 
 Retrieves a user's avatar in base64 encoded format.
 
@@ -264,7 +265,7 @@ Fetches all members of the current user’s group from the database using their 
 
 ---
 
-## 🔒👥 POST /group
+### 🔒👥 POST /group
 
 Creates a new group.
 
@@ -298,7 +299,7 @@ Creates a new group.
 
 ---
 
-## 🔒👥➕ POST /group/join
+### 🔒👥➕ POST /group/join
 
 Allows a user to join an existing group using a join code. Only users not already in a group can join.
 
@@ -330,7 +331,7 @@ Allows a user to join an existing group using a join code. Only users not alread
 
 ---
 
-## 🔒👥🚪 POST /group/leave
+### 🔒👥🚪 POST /group/leave
 
 Allows a user to leave their current group. Only users already in a group can leave.
 
@@ -341,6 +342,7 @@ Allows a user to leave their current group. Only users already in a group can le
   "message": "Left group successfully"
 }
 ```
+
 *Error Responses:*
 - `401 Unauthorized` — Not logged in or session invalid.
 - `405 Method Not Allowed` — Only POST is allowed.
@@ -350,7 +352,7 @@ Allows a user to leave their current group. Only users already in a group can le
 
 ---
 
-## 🔒👥✏️ PUT /group
+### 🔒👥✏️ PUT /group
 
 Allows the creator of a group to update the group's name.
 
@@ -384,7 +386,7 @@ Allows the creator of a group to update the group's name.
 
 ---
 
-## 🔒📋 POST /task
+### 🔒📋 POST /task
 
 Creates a new task for a group.
 
@@ -420,7 +422,7 @@ Creates a new task for a group.
 
 ---
 
-## 🔒📋 GET /task
+### 🔒📋 GET /task
 
 Fetches all tasks for the authenticated user's group.
 
@@ -461,7 +463,7 @@ Fetches all tasks for the authenticated user's group.
 
 ---
 
-## 🔒🔄 PUT /task
+### 🔒🔄 PUT /task
 
 Updates an existing task.
 
@@ -499,7 +501,7 @@ Updates an existing task.
 
 ---
 
-## 🔒🏷️ PATCH /task
+### 🔒🏷️ PATCH /task
 
 Updates progress of chosen task.
 
@@ -511,10 +513,10 @@ Updates progress of chosen task.
 }
 ```
 *Field Descriptions:*
-- taskId (integer) — The ID of the task whose step is to be updated.
-- action (string) — The action to perform on the task's step. Possible values are:
-    * "+1" — Increment the task's step by 1.
-    * "-1" — Decrement the task's step by 1.
+- `taskId` (integer) — The ID of the task whose step is to be updated.
+- `action` (string) — The action to perform on the task's step. Possible values are:
+    * `"+1"` — Increment the task's step by 1.
+    * `"-1"` — Decrement the task's step by 1.
 
 *Success Response:*
 - Status: `200 OK`
@@ -525,6 +527,7 @@ Updates progress of chosen task.
   "message": "Task step updated successfully"
 }
 ```
+
 *Error Responses:*
 - `400 Bad Request` — Missing or invalid input, such as an invalid action (e.g., action other than +1 or -1).
 - `401 Unauthorized` — User is not authenticated or authorized to perform the action.
