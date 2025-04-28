@@ -39,6 +39,7 @@ func main() {
 
 	// GROUP
 	mux.Handle("/group", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"GET":  user.GroupUsersHanlder,
 		"POST": group.CreateGroupHandler,
 		"PUT":  group.UpdateGroupHandler,
 	})))

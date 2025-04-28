@@ -225,6 +225,45 @@ fetch('/avatar?id=1')
 
 ---
 
+### 🔒📄 GET /group/users
+
+Fetches all members of the current user’s group from the database using their session token.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+[
+  {
+    "id": 456,
+    "username": "mountain",
+    "role": "member",
+    "display_name": "Dew",
+    "phone": "+19876543210",
+    "birth_date": "1992-03-15"
+  },
+  {
+    "id": 789,
+    "username": "carnival",
+    "display_name": "Carnival",
+    "role": "guest"
+  }
+]
+```
+*Field Descriptions:*
+- `id` (integer) — Unique identifier of the user.
+- `username` (string) — The user’s login name.
+- `role` (string) — The user’s role within the group.
+- `display_name` (string, optional) — The user’s chosen display/profile name.
+- `phone` (string, optional) — User’s phone number in international format.
+- `birth_date` (string, optional) — Date of birth in YYYY-MM-DD format.
+
+*Error Responses:*
+- `401 Unauthorized` — No session cookie found, or session token is invalid/expired.
+- `403 Forbidden` — The user is not associated with any group.
+- `500 Internal Server Error` — Failed to query group members or scan database rows.
+
+---
+
 ## 🔒👥 POST /group
 
 Creates a new group.
