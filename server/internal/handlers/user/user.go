@@ -9,8 +9,8 @@ import (
 )
 
 // GetUserGroupID looks up the group ID associated with a user by their user ID
-func GetUserGroupID(userID int) (int64, error) {
-	var groupID sql.NullInt64
+func GetUserGroupID(userID int) (int, error) {
+	var groupID sql.NullInt32
 	err := internal.DB.QueryRow(
 		`SELECT group_id FROM users WHERE id = $1`,
 		userID,
@@ -21,7 +21,7 @@ func GetUserGroupID(userID int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return groupID.Int64, nil
+	return int(groupID.Int32), nil
 }
 
 // GetUserDisplayName looks up the display name associated with a user by their user ID

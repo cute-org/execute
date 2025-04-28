@@ -461,7 +461,7 @@ Fetches all tasks for the authenticated user's group.
 
 ---
 
-🔒🔄 PUT /task
+## 🔒🔄 PUT /task
 
 Updates an existing task.
 
@@ -496,5 +496,40 @@ Updates an existing task.
 - `403 Forbidden` — User is not the creator of the task.
 - `500 Internal` Server Error — Failed to update task.
 - `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+
+---
+
+## 🔒🏷️ PATCH /task
+
+Updates progress of chosen task.
+
+*Request Body:*
+```json
+{
+  "taskId": 5,
+  "action": "+1"
+}
+```
+*Field Descriptions:*
+- taskId (integer) — The ID of the task whose step is to be updated.
+- action (string) — The action to perform on the task's step. Possible values are:
+    * "+1" — Increment the task's step by 1.
+    * "-1" — Decrement the task's step by 1.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "taskId": 123,
+  "step": 2,
+  "message": "Task step updated successfully"
+}
+```
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input, such as an invalid action (e.g., action other than +1 or -1).
+- `401 Unauthorized` — User is not authenticated or authorized to perform the action.
+- `403 Forbidden` — The user is not part of the same group as the task, or the user is not allowed to modify the step of the task.
+- `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+- `500 Internal Server Error` — A server error occurred while attempting to update the task's step.
 
 ---
