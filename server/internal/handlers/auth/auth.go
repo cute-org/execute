@@ -10,6 +10,12 @@ import (
 	"execute/internal"
 )
 
+type CredentialsRegister struct {
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	RePassword string `json:"repassword"`
+}
+
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -31,7 +37,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var creds Credentials
+	var creds CredentialsRegister
 
 	// Decode JSON request
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -47,6 +53,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(creds.Password) < 8 {
 		http.Error(w, "Password must be at least 8 characters long", http.StatusBadRequest)
+		return
+	}
+
+	if creds.Password != creds.RePassword {
+		http.Error(w, "Passwords aren't the same", http.StatusBadRequest)
 		return
 	}
 

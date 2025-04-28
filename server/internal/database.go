@@ -79,10 +79,15 @@ func InitDB() {
 	createUsers := `
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL UNIQUE,
+        username VARCHAR(255) NOT NULL UNIQUE,
         salt TEXT NOT NULL,
         passwordhash TEXT NOT NULL,
-        avatar BYTEA
+        avatar BYTEA,
+        display_name VARCHAR(255),
+        phone VARCHAR(20),
+        birth_date DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`
 	if _, err := DB.Exec(createUsers); err != nil {
 		log.Fatal("failed to create users table:", err)

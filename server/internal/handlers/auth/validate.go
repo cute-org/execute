@@ -8,6 +8,7 @@ import (
 type ValidateResponse struct {
 	Message string `json:"message"`
 	User    string `json:"user"`
+	ID      int    `json:"id"`
 }
 
 // ValidateHandler handles the /validate GET endpoint to check if the session is valid
@@ -38,10 +39,17 @@ func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id, err := GetUserID(r)
+	if !exists {
+		http.Error(w, "Invalid or expired session token", http.StatusUnauthorized)
+		return
+	}
+
 	// If session is valid, respond with success
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(ValidateResponse{
 		Message: "Session is valid",
 		User:    username,
+		ID:      id,
 	})
 }
