@@ -88,7 +88,7 @@ func setContentTypeMiddleware(next http.Handler) http.Handler {
 
 // Helper function to apply multiple middlewares to a handler
 func ApplyMiddlewares(handler http.Handler) http.Handler {
-	return rateLimitMiddleware(setContentTypeMiddleware(corsMiddleware(handler)))
+	return rateLimitMiddleware(setContentTypeMiddleware(handler))
 }
 
 // authMiddleware is a middleware that checks for a valid session cookie.
@@ -111,11 +111,11 @@ func authMiddleware(next http.Handler) http.Handler {
 
 // Helper function to apply multiple middlewares to a handler
 func ApplyAuthMiddlewares(handler http.Handler) http.Handler {
-	return rateLimitMiddleware(authMiddleware(setContentTypeMiddleware(corsMiddleware(handler))))
+	return rateLimitMiddleware(authMiddleware(setContentTypeMiddleware(handler)))
 }
 
 // corsMiddleware sets CORS headers to allow corss-origin requests
-func corsMiddleware(next http.Handler) http.Handler {
+func CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -130,4 +130,3 @@ func corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-

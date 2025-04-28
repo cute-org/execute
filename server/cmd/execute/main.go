@@ -56,7 +56,7 @@ func main() {
 	utils.PrintIPs(addr)
 
 	srv := &http.Server{
-		Handler:      muxWithPrefix,
+		Handler:      middleware.CorsMiddleware(muxWithPrefix),
 		Addr:         addr,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -66,3 +66,4 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
