@@ -194,3 +194,44 @@ func UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, `{ "status": "updated", "group_id": %d }`, groupID)
 }
+
+// LeaveGroupHandler handles POST /group/leave
+func LeaveGroupHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Check that user is actually in a group
+	var existing sql.NullInt64
+	err = internal.DB.QueryRow(
+		"SELECT group_id FROM users WHERE id = $1",
+		userID,
+	).Scan(&existing)
+	if err != nil {
+		http.Error(w, "User lookup failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !existing.Valid {
+		http.Error(w, "You are not in a group", http.StatusConflict)
+		return
+	}
+
+	_, err = internal.DB.Exec(
+		"UPDATE users SET group_id = NULL WHERE id = $1",
+		userID,
+	)
+	if err != nil {
+		http.Error(w, "Could not leave group: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp{Message: "Left group successfully"})
+}

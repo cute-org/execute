@@ -35,19 +35,23 @@ func main() {
 		"PUT": user.EditUserHandler,
 	})))
 	mux.Handle("/avatar", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+	mux.Handle("/user/current", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UserProfileHandler)))
 
 	// GROUP
 	mux.Handle("/group", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
+		"GET":  user.GroupUsersHanlder,
 		"POST": group.CreateGroupHandler,
 		"PUT":  group.UpdateGroupHandler,
 	})))
 	mux.Handle("/group/join", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.JoinGroupHandler)))
+	mux.Handle("/group/leave", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.LeaveGroupHandler)))
 
 	// TASK
 	mux.Handle("/task", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
-		"GET":  task.ListTasksHandler,
-		"POST": task.CreateTaskHandler,
-		"PUT":  task.UpdateTaskHandler,
+		"GET":   task.ListTasksHandler,
+		"POST":  task.CreateTaskHandler,
+		"PUT":   task.UpdateTaskHandler,
+		"PATCH": task.TaskStepHandler,
 	})))
 
 	// v1
@@ -66,4 +70,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-

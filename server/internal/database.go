@@ -86,6 +86,7 @@ func InitDB() {
         display_name VARCHAR(255),
         phone VARCHAR(20),
         birth_date DATE,
+        role VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`
@@ -120,7 +121,8 @@ func InitDB() {
         due_date         TIMESTAMPTZ NOT NULL,
         name             TEXT        NOT NULL,
         description      TEXT,
-        points_value     INTEGER     NOT NULL
+        points_value     INTEGER     NOT NULL,
+        step             INTEGER     NOT NULL DEFAULT 1
     );`
 	if _, err := DB.Exec(createTasks); err != nil {
 		log.Fatal("failed to create tasks table:", err)

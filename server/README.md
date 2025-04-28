@@ -112,6 +112,42 @@ Fetches all users from the database with their IDs and usernames.
 
 ---
 
+### 🔒📄 GET /user/current
+
+Fetches all informations about current user from the database using his token.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "id": 123,
+  "username": "mountain",
+  "display_name": "Dew",
+  "birthdate": "1985-07-21",
+  "phone": "+1234567890",
+  "role": "soft drink",
+  "group_id": 42,
+  "created_at": "2025-02-15T10:34:56Z",
+  "updated_at": "2025-04-20T14:12:30Z"
+}
+```
+*Field Descriptions:*
+- `id` (integer) — Unique identifier of the user.
+- `username` (string) — The user’s login name.
+- `display_name` (string, optional) — The user’s chosen display name/profile name.
+- `birthdate` (string, optional) — Date of birth in YYYY-MM-DD format.
+- `phone` (string, optional) — User’s phone number in international format.
+- `role` (string, optional) — The user's role.
+- `group_id` (integer, optional) — Identifier for the group the user belongs to.
+- `created_at` (string) — ISO-8601 timestamp for when the user was created.
+- `updated_at` (string) — ISO-8601 timestamp for the last time the user’s profile was updated.
+
+*Error Responses:*
+- `500 Internal Server Error` — Failed to query users.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
 ## 🔒🔧 PUT /user
 
 Updates an existing user's information.
@@ -121,7 +157,11 @@ Updates an existing user's information.
   "username": "newusername",
   "password": "currentPassword123",
   "newpassword": "NewSecurePass456",
-  "avatar": "base64encodedImage=="
+  "avatar": "base64encodedImage==",
+  "display_name": "Jane Doe",
+  "phone": "+1234567890",
+  "birth_date": "1990-05-20",
+  "role": "admin"
 }
 ```
 *Field Descriptions:*
@@ -129,6 +169,10 @@ Updates an existing user's information.
 - `password` (string) — Current password (required for verification).
 - `newpassword` (string) — New password (optional, must be at least 6 characters).
 - `avatar` (string) — Base64-encoded avatar image (optional).
+- `display_name` (string) — Display name shown to other users (optional).
+- `phone` (string) — User’s phone number (optional).
+- `birth_date` (string) — User’s birth date in YYYY-MM-DD format (optional).
+- `role` (string) — User role (e.g. admin, user, etc.) (optional).
 
 *Success Response:*
 - Status: `200 OK`
@@ -178,6 +222,45 @@ fetch('/avatar?id=1')
     document.querySelector('img').src = data.avatar;
   });
 ```
+
+---
+
+### 🔒📄 GET /group/users
+
+Fetches all members of the current user’s group from the database using their session token.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+[
+  {
+    "id": 456,
+    "username": "mountain",
+    "role": "member",
+    "display_name": "Dew",
+    "phone": "+19876543210",
+    "birth_date": "1992-03-15"
+  },
+  {
+    "id": 789,
+    "username": "carnival",
+    "display_name": "Carnival",
+    "role": "guest"
+  }
+]
+```
+*Field Descriptions:*
+- `id` (integer) — Unique identifier of the user.
+- `username` (string) — The user’s login name.
+- `role` (string) — The user’s role within the group.
+- `display_name` (string, optional) — The user’s chosen display/profile name.
+- `phone` (string, optional) — User’s phone number in international format.
+- `birth_date` (string, optional) — Date of birth in YYYY-MM-DD format.
+
+*Error Responses:*
+- `401 Unauthorized` — No session cookie found, or session token is invalid/expired.
+- `403 Forbidden` — The user is not associated with any group.
+- `500 Internal Server Error` — Failed to query group members or scan database rows.
 
 ---
 
@@ -243,6 +326,26 @@ Allows a user to join an existing group using a join code. Only users not alread
 - `405 Method Not` Allowed — Only POST is allowed.
 - `409 Conflict` — User is already in a group.
 - `500 Internal Server Error` — Database error during join.
+- `404 Unauthorized/Not Found` — No session token found, invalid/non-existent group code or token is invalid/expired.
+
+---
+
+## 🔒👥🚪 POST /group/leave
+
+Allows a user to leave their current group. Only users already in a group can leave.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Left group successfully"
+}
+```
+*Error Responses:*
+- `401 Unauthorized` — Not logged in or session invalid.
+- `405 Method Not Allowed` — Only POST is allowed.
+- `409 Conflict` — User is not in any group.
+- `500 Internal Server Error` — Database error during lookup or update.
 - `404 Unauthorized/Not Found` — No session token found, invalid/non-existent group code or token is invalid/expired.
 
 ---
@@ -358,7 +461,7 @@ Fetches all tasks for the authenticated user's group.
 
 ---
 
-🔒🔄 PUT /task
+## 🔒🔄 PUT /task
 
 Updates an existing task.
 
@@ -393,5 +496,40 @@ Updates an existing task.
 - `403 Forbidden` — User is not the creator of the task.
 - `500 Internal` Server Error — Failed to update task.
 - `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+
+---
+
+## 🔒🏷️ PATCH /task
+
+Updates progress of chosen task.
+
+*Request Body:*
+```json
+{
+  "taskId": 5,
+  "action": "+1"
+}
+```
+*Field Descriptions:*
+- taskId (integer) — The ID of the task whose step is to be updated.
+- action (string) — The action to perform on the task's step. Possible values are:
+    * "+1" — Increment the task's step by 1.
+    * "-1" — Decrement the task's step by 1.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "taskId": 123,
+  "step": 2,
+  "message": "Task step updated successfully"
+}
+```
+*Error Responses:*
+- `400 Bad Request` — Missing or invalid input, such as an invalid action (e.g., action other than +1 or -1).
+- `401 Unauthorized` — User is not authenticated or authorized to perform the action.
+- `403 Forbidden` — The user is not part of the same group as the task, or the user is not allowed to modify the step of the task.
+- `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
+- `500 Internal Server Error` — A server error occurred while attempting to update the task's step.
 
 ---

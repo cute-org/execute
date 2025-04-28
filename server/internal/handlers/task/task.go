@@ -22,6 +22,7 @@ type Task struct {
 	Name            string    `json:"name"`
 	Description     string    `json:"description"`
 	PointsValue     int       `json:"pointsValue"`
+	Step            int       `json:"step"`
 }
 
 type createReq struct {
@@ -37,6 +38,11 @@ type updateTaskReq struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	PointsValue int       `json:"pointsValue"`
+}
+
+type StepUpdateReq struct {
+	TaskID int    `json:"taskId"`
+	Action string `json:"action"`
 }
 
 // CreateTaskHandler handles POST /task
@@ -71,8 +77,8 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var taskID int
 	err = internal.DB.QueryRow(
 		`INSERT INTO tasks
-		   (group_id, creator_user_id, due_date, name, description, points_value)
-		 VALUES($1,$2,$3,$4,$5,$6) RETURNING id`,
+		   (group_id, creator_user_id, due_date, name, description, points_value, step)
+		 VALUES($1,$2,$3,$4,$5,$6,1) RETURNING id`,
 		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue,
 	).Scan(&taskID)
 	if err != nil {
@@ -120,6 +126,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		  t.name,
 		  t.description,
 		  t.points_value
+		  t.step
 		FROM tasks t
 		JOIN users u ON u.id = t.creator_user_id
 		WHERE t.group_id = $1`,
@@ -144,6 +151,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 			&t.Name,
 			&t.Description,
 			&t.PointsValue,
+			&t.Step,
 		); err != nil {
 			http.Error(w, "Failed to scan task", http.StatusInternalServerError)
 			return
@@ -210,4 +218,95 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, `{"message":"Task updated successfully"}`)
+}
+
+// UpdateStepHandler handles PATCH /task
+func TaskStepHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Decode the JSON request body
+	var req StepUpdateReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Validate the action
+	if req.Action != "+1" && req.Action != "-1" {
+		http.Error(w, "Invalid action. Must be '+1' or '-1'", http.StatusBadRequest)
+		return
+	}
+
+	// Get the userID from the auth header
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve the groupID for the user
+	groupID, err := user.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
+		return
+	}
+
+	// Retrieve the task's group ID to ensure the user belongs to the same group
+	var taskGroupID, currentStep int
+	err = internal.DB.QueryRow(
+		"SELECT group_id, step FROM tasks WHERE id=$1", req.TaskID,
+	).Scan(&taskGroupID, &currentStep)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, "Task lookup failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Ensure the user is part of the same group
+	if taskGroupID != groupID {
+		http.Error(w, "Forbidden: You are not in the same group as the task", http.StatusForbidden)
+		return
+	}
+
+	// Determine the step update
+	var stepChange int
+	if req.Action == "+1" {
+		stepChange = 1
+	} else if req.Action == "-1" {
+		stepChange = -1
+	}
+
+	// Update the step of the task in the database
+	_, err = internal.DB.Exec(
+		`UPDATE tasks
+		 SET step = step + $1
+		 WHERE id = $2`,
+		stepChange, req.TaskID,
+	)
+	if err != nil {
+		http.Error(w, "Failed to update step: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Retrieve the updated step value
+	err = internal.DB.QueryRow(
+		"SELECT step FROM tasks WHERE id=$1", req.TaskID,
+	).Scan(&currentStep)
+	if err != nil {
+		http.Error(w, "Failed to retrieve updated step value: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the updated task information
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"taskId":  req.TaskID,
+		"step":    currentStep,
+		"message": "Task step updated successfully",
+	})
 }
