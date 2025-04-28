@@ -125,6 +125,7 @@ Fetches all informations about current user from the database using his token.
   "display_name": "Dew",
   "birthdate": "1985-07-21",
   "phone": "+1234567890",
+  "role": "soft drink",
   "group_id": 42,
   "created_at": "2025-02-15T10:34:56Z",
   "updated_at": "2025-04-20T14:12:30Z"
@@ -136,6 +137,7 @@ Fetches all informations about current user from the database using his token.
 - display_name (string, optional) — The user’s chosen display name/profile name.
 - birthdate (string, optional) — Date of birth in YYYY-MM-DD format.
 - phone (string, optional) — User’s phone number in international format.
+- role (string, optional) — The user's role.
 - group_id (integer, optional) — Identifier for the group the user belongs to.
 - created_at (string) — ISO-8601 timestamp for when the user was created.
 - updated_at (string) — ISO-8601 timestamp for the last time the user’s profile was updated.

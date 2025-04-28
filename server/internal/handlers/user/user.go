@@ -119,3 +119,19 @@ func GetUserUpdatedAt(userID int) (time.Time, error) {
 	}
 	return updatedAt, nil
 }
+
+// GetUserRole looks up the user role by thier user ID
+func GetUserRole(userID int) (string, error) {
+	var userRole sql.NullString
+	err := internal.DB.QueryRow(
+		`SELECT role FROM users WHERE id = $1`,
+		userID,
+	).Scan(&userRole)
+	if err == sql.ErrNoRows || !userRole.Valid {
+		return "", errors.New("no display name associated with user")
+	}
+	if err != nil {
+		return "", err
+	}
+	return userRole.String, nil
+}

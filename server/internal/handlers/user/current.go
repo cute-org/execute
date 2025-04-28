@@ -18,6 +18,7 @@ type UserProfile struct {
 	DisplayName string `json:"display_name,omitempty"`
 	Birthdate   string `json:"birthdate,omitempty"`
 	Phone       string `json:"phone,omitempty"`
+	Role        string `json:"role,omitempty"`
 	GroupID     int64  `json:"group_id,omitempty"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
@@ -57,13 +58,14 @@ func GetUserProfile(userID int) (UserProfile, error) {
 		DisplayName sql.NullString `db:"display_name"`
 		Birthdate   sql.NullTime   `db:"birth_date"`
 		Phone       sql.NullString `db:"phone"`
+		Role        sql.NullString `db:"role"`
 		GroupID     sql.NullInt64  `db:"group_id"`
 		CreatedAt   time.Time      `db:"created_at"`
 		UpdatedAt   time.Time      `db:"updated_at"`
 	}
 
 	query := `
-		SELECT id, username, display_name, birth_date, phone, group_id, created_at, updated_at
+		SELECT id, username, display_name, birth_date, phone, role, group_id, created_at, updated_at
 		FROM users
 		WHERE id = $1
 	`
@@ -75,6 +77,7 @@ func GetUserProfile(userID int) (UserProfile, error) {
 		&r.DisplayName,
 		&r.Birthdate,
 		&r.Phone,
+		&r.Role,
 		&r.GroupID,
 		&r.CreatedAt,
 		&r.UpdatedAt,
@@ -101,6 +104,9 @@ func GetUserProfile(userID int) (UserProfile, error) {
 	}
 	if r.Phone.Valid {
 		profile.Phone = r.Phone.String
+	}
+	if r.Role.Valid {
+		profile.Role = r.Role.String
 	}
 	if r.GroupID.Valid {
 		profile.GroupID = r.GroupID.Int64
