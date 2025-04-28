@@ -9,6 +9,7 @@ import (
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
+	"execute/internal/handlers/user"
 )
 
 type Task struct {
@@ -51,7 +52,7 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID, err := auth.GetUserGroupID(userID)
+	groupID, err := user.GetUserGroupID(userID)
 	if err != nil {
 		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
 		return
@@ -102,7 +103,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID, err := auth.GetUserGroupID(userID)
+	groupID, err := user.GetUserGroupID(userID)
 	if err != nil {
 		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
 		return

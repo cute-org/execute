@@ -8,6 +8,7 @@ import (
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
+	"execute/internal/handlers/user"
 )
 
 type createReq struct {
@@ -145,7 +146,7 @@ func UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID, err := auth.GetUserGroupID(userID)
+	groupID, err := user.GetUserGroupID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
