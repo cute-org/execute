@@ -35,6 +35,7 @@ func main() {
 		"PUT": user.EditUserHandler,
 	})))
 	mux.Handle("/avatar", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.ServeAvatarHandler)))
+	mux.Handle("/user/current", middleware.ApplyAuthMiddlewares(http.HandlerFunc(user.UserProfileHandler)))
 
 	// GROUP
 	mux.Handle("/group", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{

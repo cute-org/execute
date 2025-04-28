@@ -112,6 +112,40 @@ Fetches all users from the database with their IDs and usernames.
 
 ---
 
+### 🔒📄 GET /user/current
+
+Fetches all informations about current user from the database using his token.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "id": 123,
+  "username": "mountain",
+  "display_name": "Dew",
+  "birthdate": "1985-07-21",
+  "phone": "+1234567890",
+  "group_id": 42,
+  "created_at": "2025-02-15T10:34:56Z",
+  "updated_at": "2025-04-20T14:12:30Z"
+}
+```
+*Field Descriptions:*
+- id (integer) — Unique identifier of the user.
+- username (string) — The user’s login name.
+- display_name (string, optional) — The user’s chosen display name/profile name.
+- birthdate (string, optional) — Date of birth in YYYY-MM-DD format.
+- phone (string, optional) — User’s phone number in international format.
+- group_id (integer, optional) — Identifier for the group the user belongs to.
+- created_at (string) — ISO-8601 timestamp for when the user was created.
+- updated_at (string) — ISO-8601 timestamp for the last time the user’s profile was updated.
+
+*Error Responses:*
+- `500 Internal Server Error` — Failed to query users.
+- `404 Unauthorized/Not Found` — No session token found, or token is invalid/expired.
+
+---
+
 ## 🔒🔧 PUT /user
 
 Updates an existing user's information.
