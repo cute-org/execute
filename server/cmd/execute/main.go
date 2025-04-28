@@ -44,6 +44,7 @@ func main() {
 		"PUT":  group.UpdateGroupHandler,
 	})))
 	mux.Handle("/group/join", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.JoinGroupHandler)))
+	mux.Handle("/group/leave", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.LeaveGroupHandler)))
 
 	// TASK
 	mux.Handle("/task", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
@@ -68,4 +69,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-

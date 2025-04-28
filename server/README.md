@@ -330,6 +330,26 @@ Allows a user to join an existing group using a join code. Only users not alread
 
 ---
 
+## 🔒👥🚪 POST /group/leave
+
+Allows a user to leave their current group. Only users already in a group can leave.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Left group successfully"
+}
+```
+*Error Responses:*
+- `401 Unauthorized` — Not logged in or session invalid.
+- `405 Method Not Allowed` — Only POST is allowed.
+- `409 Conflict` — User is not in any group.
+- `500 Internal Server Error` — Database error during lookup or update.
+- `404 Unauthorized/Not Found` — No session token found, invalid/non-existent group code or token is invalid/expired.
+
+---
+
 ## 🔒👥✏️ PUT /group
 
 Allows the creator of a group to update the group's name.
