@@ -20,7 +20,7 @@ type User struct {
 type GroupMember struct {
 	ID          int        `json:"id"`
 	Username    string     `json:"username"`
-	Role        string     `json:"role"`
+	Role        *string    `json:"role,omitempty"`
 	DisplayName *string    `json:"display_name,omitempty"`
 	Phone       *string    `json:"phone,omitempty"`
 	BirthDate   *time.Time `json:"birth_date,omitempty"`
@@ -88,13 +88,13 @@ func GroupUsersHanlder(w http.ResponseWriter, r *http.Request) {
 	members := make([]GroupMember, 0)
 	for rows.Next() {
 		var m GroupMember
-		var dn, ph sql.NullString
+		var dn, ph, r sql.NullString
 		var bd sql.NullTime
 
 		if err := rows.Scan(
 			&m.ID,
 			&m.Username,
-			&m.Role,
+			&r,
 			&dn,
 			&ph,
 			&bd,
@@ -112,6 +112,9 @@ func GroupUsersHanlder(w http.ResponseWriter, r *http.Request) {
 		}
 		if bd.Valid {
 			m.BirthDate = &bd.Time
+		}
+		if r.Valid {
+			m.Role = &r.String
 		}
 
 		members = append(members, m)
