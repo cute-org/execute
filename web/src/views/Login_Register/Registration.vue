@@ -6,7 +6,7 @@
         <label class="block text-white select-none text-3xl mb-2">Login</label>
         <input
           type="text"
-          placeholder="Enter Login..."
+          placeholder=" Login..."
           class="w-64 px-4 py-2 rounded text-black focus:outline-none"
           v-model="login"
         />
@@ -28,9 +28,9 @@
           type="password"
           placeholder="Please repeat password..."
           class="w-64 px-4 py-2 rounded text-black focus:outline-none"
-          v-model="repeatPassword"
+          v-model="rePassword"
         />
-        <p v-if="repeatPasswordError" class="text-error text-sm">{{ repeatPasswordError }}</p>
+        <p v-if="rePasswordError" class="text-error text-sm">{{ rePasswordError }}</p>
       </div>
 
       <div>
@@ -53,54 +53,38 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// Register
+//Register
 const login = ref('');
 const password = ref('');
-const repeatPassword = ref('');
+const rePassword = ref('');
 
 const loginError = ref('');
 const passwordError = ref('');
-const repeatPasswordError = ref('');
+const rePasswordError = ref('');
 const registrationError = ref('');
 const registrationSuccess = ref('');
 
 const registerUser = async () => {
-
-  //error messages
   loginError.value = '';
   passwordError.value = '';
-  repeatPasswordError.value = '';
+  rePasswordError.value = '';
   registrationError.value = '';
   registrationSuccess.value = '';
 
-  // validation
-  if (!login.value.trim()) {
-    loginError.value = 'Login is required.';
-    return;
-  }
-  if (!password.value.trim()) {
-    passwordError.value = 'Password is required.';
-    return;
-  }
-  if (password.value !== repeatPassword.value) {
-    repeatPasswordError.value = 'Passwords do not match.';
-    return;
-  }
-
   try {
-  const response = await fetch('http://localhost:8437/api/v1/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      username: login.value,
-      password: password.value,
-    }),
-  });
-
-  if (!response.ok) {
-      //Setting errors for codes
+    const response = await fetch('http://localhost:8437/api/v1/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: login.value,
+        password: password.value,
+        repassword: rePassword.value,
+      }),
+    });
+   
+    if (!response.ok) {
       if (response.status === 401) {
         registrationError.value = 'Invalid username or password';
       } else if (response.status === 400) {
@@ -110,15 +94,15 @@ const registerUser = async () => {
       }
       return;
     }
-  
-  const data = await response.json();
-  registrationSuccess.value = 'Registration successful! Redirecting to login...';
-  setTimeout(() => {
-    router.push('/'); //Pushing back to login
-  }, 1500); //delay
-} catch (error: any) { 
-  registrationError.value = `Connection error: ${error.message || 'Unknown error'}`;
-  console.error('Registration error:', error);
+      const data = await response.json();
+      registrationSuccess.value = 'Registration successful! Redirecting to login...';
+      setTimeout(() => {
+        router.push('/'); //Pushing back to login
+      }, 1500); //delay
+    } catch (error: any) { 
+      registrationError.value = `Connection error: ${error.message || 'Unknown error'}`;
+      console.error('Registration error:', error);
+  }
 }
-}
+
 </script>
