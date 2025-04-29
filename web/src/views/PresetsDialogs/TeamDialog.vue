@@ -38,7 +38,6 @@
                 @click="isJoining = true"
                 class="flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
               >
-                <span class="font-bold text-lg">👥+</span>
                 Join Team
               </button>
             </div>
