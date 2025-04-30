@@ -182,7 +182,7 @@
   </div>
 </div>
 
-  <!-- Task Modal -->
+<!-- Task Modal -->
   <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="border-2 border-solid border-borderColor bg-infoBg text-white p-6 rounded-xl w-full max-w-md space-y-4">
         <h2 class="text-2xl text-center font-semibold">Add Task</h2>

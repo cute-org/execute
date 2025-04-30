@@ -24,8 +24,6 @@
         </div>
       </Dialog>
     </TransitionRoot>
-    
-
 </template>
 
 <script setup>
