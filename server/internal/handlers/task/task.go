@@ -80,7 +80,7 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		`INSERT INTO tasks
 		   (group_id, creator_user_id, due_date, name, description, points_value, step)
 		 VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
-		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue,
+		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue, req.Step,
 	).Scan(&taskID)
 	if err != nil {
 		http.Error(w, "Failed to create task: "+err.Error(), http.StatusInternalServerError)
