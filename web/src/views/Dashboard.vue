@@ -63,8 +63,8 @@
                             ">
 
                           <!-- Elements inside  -->
-                              <div class="">
-                                  <div class="text-xl">{{ item.name }}</div>
+                              <div class="text-left">
+                                  <div class="text-xl">{{ item.name.trim() }}</div>
                                   <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
@@ -109,13 +109,13 @@
                             ">
 
                           <!-- Elements inside  -->
-                              <div class="">
-                                  <div class="text-xl">{{ item.name }}</div>
+                              <div class="text-left">
+                                  <div class="text-xl">{{ item.name.trim() }}</div>
                                   <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
                         </div>
-                        <span class="text-white text-sm">{{ item.points || '0'}}pkt</span>
+                        <span class="text-white text-sm">{{ item.points || '0'}} pkt</span>
                     </div>
                 </div>
                   <!-- No tasks yet  -->
@@ -155,8 +155,8 @@
                             <button @click="openTaskSettings(item, 'todo', index)
                             ">
                           <!-- Elements inside  -->
-                              <div class="">
-                                  <div class="text-xl">{{ item.name }}</div>
+                              <div class="text-left">
+                                  <div class="text-xl">{{ item.name.trim() }}</div>
                                   <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
@@ -182,7 +182,7 @@
   </div>
 </div>
 
-  <!-- Task Modal -->
+<!-- Task Modal -->
   <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="border-2 border-solid border-borderColor bg-infoBg text-white p-6 rounded-xl w-full max-w-md space-y-4">
         <h2 class="text-2xl text-center font-semibold">Add Task</h2>
@@ -201,7 +201,7 @@
         </div>
         <div>
           <label class="block mb-1">Due Date</label>
-          <input v-model="task.dueDate" type="date" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" /> <!-- input type adds calendar on the right btw -->
+          <input v-model="task.dueDate" type="datetime-local" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" /> <!-- input type adds calendar on the right btw -->
         </div>
         <div class="flex justify-end space-x-2">
           <button @click="closeModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Cancel</button>
@@ -251,7 +251,7 @@
 <script lang="ts" setup>
     import { useRouter } from 'vue-router'
     import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
     import NavigationBar from './NavigationBar.vue'
     import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
     import InfoDialog from './PresetsDialogs/InfoDialog.vue'
@@ -271,15 +271,6 @@
     router.push('/')
   }
 }
-
-
-    interface TaskItem {
-      name: string,
-      description: string,
-      points: number,
-      dueDate: string,
-      isDone: boolean
-    }
 
     const openSettings = ref(false)
     const openInfo = ref(false)
@@ -305,6 +296,14 @@
       isModalOpen.value = false
     }
     
+    interface TaskItem {
+      name: string,
+      description: string,
+      points: number,
+      dueDate: string,
+      isDone: boolean
+    }
+    
     const task = ref<TaskItem>({
       name: '',
       description: '',
@@ -318,13 +317,77 @@
     const completedTasks = ref<TaskItem[]>([])
     const activeTaskList = ref('')
 
-    function saveTask() {
-      //Placeholder logic for adding in list
+    async function fetchTasks() {
+      try {
+        const response = await fetch('http://localhost:8437/api/v1/task', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
+        if (response.ok) {
+          const tasks = await response.json()
+
+          tasks.forEach((task: any) => {
+            const taskItem: TaskItem = {
+              name: task.name,
+              description: task.description,
+              points: task.pointsValue,
+              dueDate: task.dueDate,
+              isDone: false,
+            }
+              if (task.step === 1) {
+              toDoTasks.value.push(taskItem)
+              } else if (task.step === 2) {
+              inProgressTasks.value.push(taskItem)
+              } else if (task.step === 3) {
+              completedTasks.value.push(taskItem)
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Fetching tasks failed:', error)
+      }
+    }
+    onMounted(() => {
+      fetchTasks()
+    })
+
+
+    async function saveTask() {
       if (!task.value.name.trim()) {
         alert('Task name is required')
         return
       }
-      //Logic for backend here
+      
+      const stepId = {
+        todo: 1,
+        inProgress: 2,
+        completed: 3
+      }
+
+      const load = {
+        name: task.value.name.trim(),
+        description: task.value.description,
+        dueDate: new Date(task.value.dueDate).toISOString(),
+        pointsValue: Number(task.value.points),
+        step: stepId[activeTaskList.value] || 1
+      }
+
+      
+
+    try {
+        const respone = await fetch('http://localhost:8437/api/v1/task', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(load),
+          credentials: 'include',
+        })        
+      
+
       // Adding to specific list
       if (activeTaskList.value == 'todo') {
         toDoTasks.value.push({...task.value})
@@ -333,9 +396,13 @@
       } else if (activeTaskList.value == 'completed') {
         completedTasks.value.push({...task.value})
       }
-
+      console.log("Load to server:", load)
       closeModal()
+    } catch (error) {
+        console.error('Request error:', error);
     }
+  } 
+
     
     //Tasks settings
     const isTaskSettingOpen = ref(false)

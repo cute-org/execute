@@ -34,8 +34,6 @@
               >
               Submit
               </button>
-            <p v-if="loggingError" class = "text-error text-sm"> {{ loggingError }}</p>
-            <p v-if="loggingSuccess" class = "text-accepted text-sm">{{ loggingSuccess }}</p>
           </div>
           <span class="text-gray-400">Or</span>
           <div>
@@ -45,6 +43,8 @@
               Register
               </button>
           </div>
+          <p v-if="loggingError" class = "text-error text-sm mt-1"> {{ loggingError }}</p>
+          <p v-if="loggingSuccess" class = "text-accepted text-sm">{{ loggingSuccess }}</p>
         </div>
       </div>
     </div>
