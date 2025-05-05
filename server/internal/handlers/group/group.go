@@ -37,7 +37,7 @@ type updateGroupReq struct {
 type groupInfoResp struct {
 	Name    string    `json:"name"`
 	Code    string    `json:"code"`
-	Meeting time.Time `json:"meeting"`
+	Meeting time.Time `json:"meeting,omitempty"`
 }
 
 type setMeetingReq struct {
