@@ -18,11 +18,11 @@
             <div class="space-y-4 bg-fillingInfo p-4 rounded-lg">
               <div>
                 <p class="text-sm text-gray-300">Team Name</p>
-                <p class="font-medium text-lg text-white">{{ groupDetails.name }}</p>
+                <p class="font-medium text-lg text-white">{{ teamData.name }}</p>
               </div>
               <div>
                 <p class="text-sm text-gray-300">Join Code</p>
-                <p class="font-medium text-lg font-mono text-white">{{ groupDetails.code }}</p>
+                <p class="font-medium text-lg font-mono text-white">{{ teamData.code }}</p>
               </div>
             </div>
   
@@ -145,10 +145,7 @@
   const joinCode = ref('');
   const error = ref('');
   const isLoading = ref(false);
-  const groupDetails = ref({
-    name: "Team 1",
-    code: "XYZ123"
-  });
+ 
   
   const API_BASE_URL = 'http://localhost:8437/api/v1';
   //  prop changes
@@ -160,6 +157,14 @@
   watch(isOpen, (newVal) => {
     emit('update:show', newVal);
   });
+
+  // team info changes 
+  watch(() => props.show, (newVal) => {
+  isOpen.value = newVal;
+  if (newVal) {
+    fetchTeamInfo();
+  }
+});
   
   const closeDialog = () => {
     isOpen.value = false;
@@ -201,10 +206,42 @@ const handleJoinGroup = async () => {
         code: joinCode.value
       }),
     });
+    if (response.ok) {
+      await fetchTeamInfo();
+        closeDialog();
+    }
     closeDialog()
   } catch (error) {
     error.value = `Connection error: ${error.message || 'Unknown error'}`;
     console.error('Joining group error', error);
+  }
+}
+
+const teamData = ref({
+    name: 'Loading...',
+    code: '',
+  });
+
+  const updateTeamData = (newTeamData) => {
+    teamData.value = newTeamData
+  }
+  
+  async function fetchTeamInfo() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/group/info`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        teamData.value = data;
+    } 
+  } catch (error) {
+      console.error('Failed to fetch team info', error);
   }
 }
   </script>

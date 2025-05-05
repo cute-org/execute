@@ -78,7 +78,7 @@
             <div>
               <button class="flex items-center text-white" @click="openModal('todo')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
-                  <span class="font-bold">+</span>
+                  <span class="font-sans font-bold">+</span>
                 </div>
                 <span class="text-white text-lg font-medium">Add Tasks</span>
               </button>
@@ -125,7 +125,7 @@
             <div>
               <button class="flex items-center text-white" @click="openModal('inProgress')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
-                  <span class="font-bold">+</span>
+                  <span class="font-sans font-bold">+</span>
                 </div>
                 <span class="text-white text-lg font-medium">Add Tasks</span>
               </button>
@@ -158,8 +158,8 @@
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
                                   <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
-                                  </div>
-                              </button>
+                                </div>
+                            </button>
                         </div>
                         <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
@@ -171,7 +171,7 @@
             <div>
               <button class="flex items-center text-white" @click="openModal('completed')">
                 <div class="w-6 h-6 rounded-full bg-transparent border-2 border-white flex items-center justify-center mr-2">
-                  <span class="font-bold">+</span>
+                  <span class="font-sans font-bold">+</span>
                 </div>
                 <span class="text-white text-lg font-medium">Add Tasks</span>
               </button>

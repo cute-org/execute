@@ -24,7 +24,7 @@
           @click="openTeamDialog" 
           class="space-y-2 w-full max-w-[30rem] px-6 py-4 bg-borderColor rounded-xl border-borderColor border-2 border-solid flex justify-center cursor-pointer hover:opacity-90 transition-opacity"
         >
-            <span class="text-6xl">TEAM 1</span> 
+            <span class="text-6xl">{{ teamData.name }}</span> 
         </div>
       </div>
       <!-- Members, meeting, scoreboard -->
@@ -52,7 +52,7 @@
         </div>
         <!-- Placeholder date -->
         <div class="flex justify-center">
-          <h1 class="text-white text-3xl">18 apr 15:00</h1>
+          <h1 class="text-white text-3xl">{{ teamData.meeting }}</h1>
         </div>
      </div>
      <!-- Scoreboard section -->
@@ -85,14 +85,13 @@
 <script lang="ts" setup>
   import { useRouter } from 'vue-router'
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-  import { ref, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
   import NavigationBar from './NavigationBar.vue'
   import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
   import InfoDialog from './PresetsDialogs/InfoDialog.vue'
   import TeamDialog from './PresetsDialogs/TeamDialog.vue'
 
   const router = useRouter()
-
   //navigation using NavigationBar Preset
   const navigateTo = (section) => {
     if (section === 'dashboard') {
@@ -123,4 +122,44 @@
   const openTeamDialog = () => {
     showTeamDialog.value = true
   }
+
+  const teamData = ref({
+    name: 'Loading...',
+    code: '',
+    meeting: null,
+  });
+
+  const updateTeamData = (newTeamData) => {
+    teamData.value = newTeamData
+  }
+  
+async function fetchTeamInfo() {
+  try {
+    const response = await fetch('http://localhost:8437/api/v1/group/info', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      teamData.value = data;
+      
+      // meeting date
+      if (teamData.value.meeting) {
+        const meetingDate = new Date(teamData.value.meeting);
+        teamData.value.meeting = meetingDate.toLocaleString();
+      }
+    } else {
+      console.error('Error fetching team info:', response.status);
+    }
+  } catch (error) {
+    console.error('Failed to fetch team info', error);
+  }
+}
+  onMounted(() => {
+    fetchTeamInfo()
+  })
 </script>

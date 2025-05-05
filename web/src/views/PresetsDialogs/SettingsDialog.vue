@@ -9,13 +9,10 @@
           <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
               <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                <div class="sm:flex sm:items-start">
-                  <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <DialogTitle as="h3" class="text-base font-semibold text-gray-900">That is a placeholder for settings popup dialog</DialogTitle>
-                    <div class="mt-2">
-                      <p class="text-sm text-gray-500">12!21(42"/.)/[[]=->..;`~`""]</p>
-                    </div>
-                    <button @click="handleLogout" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500">Logout</button>
+                <div class="">
+                  <div class="mt-3 text-center">
+                    <DialogTitle as="h3" class="text-base text-2xl font-semibold text-gray-900 text-center">Settings</DialogTitle>
+                    <button @click="handleLogout" class="px-4 py-2 mt-2 rounded bg-red-600 hover:bg-red-500">Logout</button>
                   </div>
                 </div>
               </DialogPanel>
