@@ -82,7 +82,6 @@ func InitDB() {
         username VARCHAR(255) NOT NULL UNIQUE,
         salt TEXT NOT NULL,
         passwordhash TEXT NOT NULL,
-        avatar BYTEA,
         display_name VARCHAR(255),
         phone VARCHAR(20),
         birth_date DATE,
@@ -105,11 +104,18 @@ func InitDB() {
 		log.Fatal("failed to create groups table:", err)
 	}
 
-	alterUsersTable := `
+	alterUsersGroup := `
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS group_id INTEGER REFERENCES groups(id) ON DELETE SET NULL;`
-	if _, err := DB.Exec(alterUsersTable); err != nil {
+	if _, err := DB.Exec(alterUsersGroup); err != nil {
 		log.Fatal("failed to alter users table to add group_id:", err)
+	}
+
+	alterUsersAvatar := `
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS avatar BYTEA;`
+	if _, err := DB.Exec(alterUsersAvatar); err != nil {
+		log.Fatal("failed to alter users table to add avatar column:", err)
 	}
 
 	createTasks := `
