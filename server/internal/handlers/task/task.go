@@ -30,6 +30,7 @@ type createReq struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	PointsValue int       `json:"pointsValue"`
+	Step        int       `json:"step"`
 }
 
 type updateTaskReq struct {
@@ -78,7 +79,7 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	err = internal.DB.QueryRow(
 		`INSERT INTO tasks
 		   (group_id, creator_user_id, due_date, name, description, points_value, step)
-		 VALUES($1,$2,$3,$4,$5,$6,1) RETURNING id`,
+		 VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
 		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue,
 	).Scan(&taskID)
 	if err != nil {
@@ -125,7 +126,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		  t.due_date,
 		  t.name,
 		  t.description,
-		  t.points_value
+		  t.points_value,
 		  t.step
 		FROM tasks t
 		JOIN users u ON u.id = t.creator_user_id
