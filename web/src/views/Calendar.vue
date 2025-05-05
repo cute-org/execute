@@ -72,22 +72,22 @@
               >
                 <div class="p-2 h-full">
 
-                  <!-- Content placeholder -->
-                   <div class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between">
-                    <div class="flex items-center">
-                      <div 
-                          @click="active = !active"
-                          :class="['w-4 h-4 rounded-full mr-3', active ? 'bg-green-200' : 'bg-gray-500']"
-                        ></div>
-                                                
-                          <!-- Elements inside  -->
-                          <div class="">
-                            <div class="text-xl">asfasf</div>
-                          </div>
+                  <div class="p-2 h-full">
+                    <div 
+                      v-for="task in tasksDay(day)" 
+                      :key="task.id" 
+                      class="bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
+                    >
+                      <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-3 bg-green-200"></div>
+                        <div>
+                          <div class="text-xl">{{ task.name }}</div>
+                          <div class="text-sm text-gray-300">{{ task.description }}</div>
                         </div>
-                        <span class="text-white text-sm">123pkt</span>
+                      </div>
+                      <span class="text-white text-sm">{{ task.pointsValue }} pts</span>
                     </div>
-                    <!-- End of placeholder-->
+                  </div>
                 </div>
               </div>
             </div>
@@ -107,7 +107,7 @@
 <script lang="ts" setup>
   import { useRouter } from 'vue-router'
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-  import { computed, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { 
   format, 
   startOfWeek, 
@@ -120,6 +120,7 @@
   isToday as dateFnsIsToday,
 } from 'date-fns';
 //Language for dates, zone
+import { isSameDay, parseISO } from 'date-fns'
 import { enAU } from 'date-fns/locale';
 import NavigationBar from './NavigationBar.vue'
 import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
@@ -163,6 +164,29 @@ import InfoDialog from './PresetsDialogs/InfoDialog.vue'
     })
    })
 
+   const tasks = ref([])
+
+   onMounted(async () => {
+      try {
+        const response = await fetch('http://localhost:8437/api/v1/task', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
+        const data = await response.json()
+        tasks.value = data
+      } catch (error) {
+        console.error('Fetching tasks failed:', error)
+      }
+    })
+    //show per dueDate
+    const tasksDay = (day: Date) => {
+      return tasks.value.filter((task) => 
+      isSameDay(parseISO(task.dueDate), day))
+    }
+    
 //Navigations
    //Next week nav
    const nextWeek = () => {
