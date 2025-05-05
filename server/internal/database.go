@@ -98,6 +98,7 @@ func InitDB() {
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         code TEXT NOT NULL UNIQUE,
+        meeting TIMESTAMP,
         creator_user_id INTEGER NOT NULL REFERENCES users(id)
     );`
 	if _, err := DB.Exec(createGroups); err != nil {

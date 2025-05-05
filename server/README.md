@@ -386,6 +386,63 @@ Allows the creator of a group to update the group's name.
 
 ---
 
+### 🔒👥📄 GET /group/info
+
+Retrieves basic information about the authenticated user’s group.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "name": "Group",
+  "code": "XY34ZT",
+  "meeting": "2025-05-12T18:30:00Z"
+}
+```
+*Field Description:*
+- `name` (string) — The group’s display name.
+- `code` (string) — The alphanumeric join code for the group.
+- `meeting` (string, optional) — The scheduled meeting time in ISO 8601 format. Only included if a meeting has been set.
+
+*Error Responses:*
+- `401 Unauthorized` — No valid session token, or session token is expired/invalid.
+- `404 Unauthorized/Not Found` — No session token found, group not found or token is invalid/expired.
+- `500 Internal Server Error` — An error occurred while retrieving group information from the database.
+
+---
+
+### 🔒👥 POST /group/meeting
+
+Sets or updates the meeting time for the current user’s group. Only the group creator can update the meeting.
+
+*Request Body:*
+```json
+{
+  "time": "2025-06-01T14:00:00Z"
+}
+```
+*Field Descriptions:*
+- `time` (string) — Required. The scheduled meeting time in ISO 8601 format.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "message": "Meeting time updated successfully"
+}
+```
+*Field Descriptions:*
+- `message` (string) — A confirmation message indicating that the meeting time was successfully updated.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid request payload (e.g., missing or invalid time).
+- `401 Unauthorized` — No valid session token, or the session token is expired/invalid.
+- `403 Forbidden` — The authenticated user is not the creator of the group.
+- `404 Not Found` — The user is not assigned to any group.
+- `500 Internal Server Error` — Failed to update the meeting time in the database.
+
+---
+
 ### 🔒📋 POST /task
 
 Creates a new task for a group.
