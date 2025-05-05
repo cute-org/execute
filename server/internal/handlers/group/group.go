@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"execute/internal"
 	"execute/internal/handlers/auth"
@@ -31,6 +32,16 @@ type resp struct {
 type updateGroupReq struct {
 	Name string `json:"name"`
 	Code string `json:"code,omitempty"`
+}
+
+type groupInfoResp struct {
+	Name    string    `json:"name"`
+	Code    string    `json:"code"`
+	Meeting time.Time `json:"meeting"`
+}
+
+type setMeetingReq struct {
+	Time time.Time `json:"time"`
 }
 
 // CreateGroupHandler handles POST /group
@@ -234,4 +245,86 @@ func LeaveGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp{Message: "Left group successfully"})
+}
+
+// GetGroupInfoHandler handles GET /group/info
+func GetGroupInfoHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	groupID, err := user.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	var name, code string
+	var meeting sql.NullTime
+	err = internal.DB.QueryRow(
+		`SELECT name, code, meeting FROM groups WHERE id = $1`, groupID,
+	).Scan(&name, &code, &meeting)
+	if err != nil {
+		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := groupInfoResp{
+		Name: name,
+		Code: code,
+	}
+	if meeting.Valid {
+		resp.Meeting = meeting.Time
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+// SetGroupMeetingHandler handles POST /group/meeting
+func SetGroupMeetingHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, "user not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	groupID, err := user.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	var isCreator bool
+	err = internal.DB.QueryRow(
+		`SELECT creator_user_id = $1 FROM groups WHERE id = $2`, userID, groupID,
+	).Scan(&isCreator)
+	if err != nil {
+		http.Error(w, "group lookup failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !isCreator {
+		http.Error(w, "only group creator can set the meeting", http.StatusForbidden)
+		return
+	}
+
+	var req setMeetingReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	_, err = internal.DB.Exec(
+		`UPDATE groups SET meeting = $1 WHERE id = $2`,
+		req.Time, groupID,
+	)
+	if err != nil {
+		http.Error(w, "failed to update meeting time", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp{Message: "Meeting time updated successfully"})
 }

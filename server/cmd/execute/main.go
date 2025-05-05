@@ -45,6 +45,8 @@ func main() {
 	})))
 	mux.Handle("/group/join", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.JoinGroupHandler)))
 	mux.Handle("/group/leave", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.LeaveGroupHandler)))
+	mux.Handle("/group/info", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.GetGroupInfoHandler)))
+	mux.Handle("/group/meeting", middleware.ApplyAuthMiddlewares(http.HandlerFunc(group.SetGroupMeetingHandler)))
 
 	// TASK
 	mux.Handle("/task", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
