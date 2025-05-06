@@ -35,9 +35,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl  font-bold">To-Do</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -56,7 +53,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
                         </div>
@@ -82,9 +79,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl  font-bold">In progress</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -102,7 +96,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
                         </div>
@@ -129,9 +123,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl font-bold">Completed</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -148,7 +139,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                 </div>
                             </button>
                         </div>
@@ -221,7 +212,7 @@
     <div>
       <h3 class="font-medium text-lg mb-1">Due Date:</h3>
       <!-- If no date 'No due date set'-->
-      <p class="text-gray-300">{{ selectedTask?.dueDate || 'No due date set' }}</p>
+      <p class="text-gray-300">{{ formatDate(selectedTask?.dueDate) || 'No due date set' }}</p>
     </div>
     
     <div class="flex justify-between space-x-2 mt-4">
@@ -304,11 +295,17 @@
       dueDate: '',
       isDone: false
     })
+    
 
     const toDoTasks = ref<TaskItem[]>([])
     const inProgressTasks = ref<TaskItem[]>([])
     const completedTasks = ref<TaskItem[]>([])
     const activeTaskList = ref('')
+
+    function formatDate(dateStr: string | undefined): string {
+      return dateStr ? dateStr.slice(0, 16).replace('T', ' ') : '';
+    }
+
 
     async function fetchTasks() {
       try {
