@@ -21,7 +21,7 @@
       <!-- Team info section -->
       <div class="px-16 py-6">
         <div class="flex items-center">
-          <h2 class="text-3xl text-white font-adlam">Team 1</h2>
+          <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
           <div class="flex ml-4 -space-x-2">
             <!-- Team elements users placeholders  -->
             <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-black"></div>
@@ -255,6 +255,8 @@
     import NavigationBar from './NavigationBar.vue'
     import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
     import InfoDialog from './PresetsDialogs/InfoDialog.vue'
+    import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
+
 
     const router = useRouter()
     //Navigation
@@ -350,10 +352,7 @@
         console.error('Fetching tasks failed:', error)
       }
     }
-    onMounted(() => {
-      fetchTasks()
-    })
-
+ 
 
     async function saveTask() {
       if (!task.value.name.trim()) {
@@ -433,4 +432,9 @@
       }
       closeTaskSettings()
     }
+    
+    onMounted(() => {
+      fetchTasks()
+      fetchTeamInfo()
+    })
 </script>

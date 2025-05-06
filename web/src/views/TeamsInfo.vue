@@ -90,6 +90,7 @@
   import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
   import InfoDialog from './PresetsDialogs/InfoDialog.vue'
   import TeamDialog from './PresetsDialogs/TeamDialog.vue'
+  import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
 
   const router = useRouter()
   //navigation using NavigationBar Preset
@@ -122,43 +123,7 @@
   const openTeamDialog = () => {
     showTeamDialog.value = true
   }
-
-  const teamData = ref({
-    name: 'Loading...',
-    code: '',
-    meeting: null,
-  });
-
-  const updateTeamData = (newTeamData) => {
-    teamData.value = newTeamData
-  }
   
-async function fetchTeamInfo() {
-  try {
-    const response = await fetch('http://localhost:8437/api/v1/group/info', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      teamData.value = data;
-      
-      // meeting date
-      if (teamData.value.meeting) {
-        const meetingDate = new Date(teamData.value.meeting);
-        teamData.value.meeting = meetingDate.toLocaleString();
-      }
-    } else {
-      console.error('Error fetching team info:', response.status);
-    }
-  } catch (error) {
-    console.error('Failed to fetch team info', error);
-  }
-}
   onMounted(() => {
     fetchTeamInfo()
   })
