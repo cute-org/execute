@@ -3,7 +3,6 @@
    <!-- Left navigation bar -->
    <NavigationBar 
       activeSection="teamsInfo"
-      @back="goBack"
       @navigate="navigateTo"
       @toggle-settings="toggleSettings"
       @toggle-info="toggleInfo"
@@ -46,7 +45,7 @@
         </div>
       </div>
       <!-- Next meeting section -->
-      <div class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
+      <div @click="openMeetingDialog" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative hover:opacity-90 transition-opacity">
         <div class="flex justify-center pb-4">
           <h1 class="text-white text-4xl font-bold">Next meeting:</h1>
         </div>
@@ -79,6 +78,8 @@
  <InfoDialog v-model:show="openInfo" />
  <!-- Team Dialog -->
  <TeamDialog v-model:show="showTeamDialog" />
+ <!-- Meeting Dialog -->
+ <MeetingDialog v-model:show="showMeetingDialog" />
 </template>
 
 <!-- Setting up router navigation  -->
@@ -90,6 +91,7 @@
   import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
   import InfoDialog from './PresetsDialogs/InfoDialog.vue'
   import TeamDialog from './PresetsDialogs/TeamDialog.vue'
+  import MeetingDialog from './PresetsDialogs/MeetingDialog.vue'
   import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
 
   const router = useRouter()
@@ -111,6 +113,8 @@
   const openSettings = ref(false)
   const openInfo = ref(false)
   const showTeamDialog = ref(false)
+  const showMeetingDialog = ref(false)
+
 
   const toggleSettings = () => {
     openSettings.value = !openSettings.value
@@ -123,7 +127,12 @@
   const openTeamDialog = () => {
     showTeamDialog.value = true
   }
+
+  const openMeetingDialog = () => {
+    showMeetingDialog.value = true
+  }
   
+
   onMounted(() => {
     fetchTeamInfo()
   })

@@ -3,7 +3,6 @@
     <!-- Left navigation bar -->
     <NavigationBar 
       activeSection="userInfo"
-      @back="goBack"
       @navigate="navigateTo"
       @toggle-settings="toggleSettings"
       @toggle-info="toggleInfo"
@@ -71,7 +70,7 @@
             </div>
            </div>
           <div v-else>
-            <span>Loading user data...</span>
+            <span>Set your user data</span>
           </div>
         </div>
       </div>

@@ -128,6 +128,7 @@
   <script setup>
   import { ref, watch } from 'vue';
   import { Dialog, DialogPanel } from '@headlessui/vue';
+  import { fetchTeamInfo, teamData } from '../PresetsScripts/GroupInfo.ts'
   
   const props = defineProps({
     show: {
@@ -214,34 +215,6 @@ const handleJoinGroup = async () => {
   } catch (error) {
     error.value = `Connection error: ${error.message || 'Unknown error'}`;
     console.error('Joining group error', error);
-  }
-}
-
-const teamData = ref({
-    name: 'Loading...',
-    code: '',
-  });
-
-  const updateTeamData = (newTeamData) => {
-    teamData.value = newTeamData
-  }
-  
-  async function fetchTeamInfo() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/group/info`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        teamData.value = data;
-    } 
-  } catch (error) {
-      console.error('Failed to fetch team info', error);
   }
 }
   </script>

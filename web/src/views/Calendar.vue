@@ -3,7 +3,6 @@
    <!-- Left navigation bar -->
    <NavigationBar 
       activeSection="calendar"
-      @back="goBack"
       @navigate="navigateTo"
       @toggle-settings="toggleSettings"
       @toggle-info="toggleInfo"

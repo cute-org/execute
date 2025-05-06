@@ -3,7 +3,6 @@
     <!-- Left navigation bar -->
     <NavigationBar 
       activeSection="dashboard"
-      @back="goBack"
       @navigate="navigateTo"
       @toggle-settings="toggleSettings"
       @toggle-info="toggleInfo"
@@ -22,14 +21,6 @@
       <div class="px-16 py-6">
         <div class="flex items-center">
           <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
-          <div class="flex ml-4 -space-x-2">
-            <!-- Team elements users placeholders  -->
-            <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-black"></div>
-            <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-black"></div>
-            <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-black"></div>
-          </div>
-          <!-- Number of team members placeholder  -->
-          <div class="ml-1 px-2 py-0.5 bg-gray-500 bg-opacity-50 rounded-full text-sm text-white">+21</div>
         </div>
         <!-- Points placeholder -->
         <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
@@ -432,7 +423,7 @@
       }
       closeTaskSettings()
     }
-    
+
     onMounted(() => {
       fetchTasks()
       fetchTeamInfo()
