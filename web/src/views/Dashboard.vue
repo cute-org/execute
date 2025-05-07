@@ -3,7 +3,6 @@
     <!-- Left navigation bar -->
     <NavigationBar 
       activeSection="dashboard"
-      @back="goBack"
       @navigate="navigateTo"
       @toggle-settings="toggleSettings"
       @toggle-info="toggleInfo"
@@ -21,15 +20,7 @@
       <!-- Team info section -->
       <div class="px-16 py-6">
         <div class="flex items-center">
-          <h2 class="text-3xl text-white font-adlam">Team 1</h2>
-          <div class="flex ml-4 -space-x-2">
-            <!-- Team elements users placeholders  -->
-            <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-black"></div>
-            <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-black"></div>
-            <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-black"></div>
-          </div>
-          <!-- Number of team members placeholder  -->
-          <div class="ml-1 px-2 py-0.5 bg-gray-500 bg-opacity-50 rounded-full text-sm text-white">+21</div>
+          <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
         </div>
         <!-- Points placeholder -->
         <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
@@ -44,9 +35,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl  font-bold">To-Do</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -65,7 +53,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
                         </div>
@@ -91,9 +79,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl  font-bold">In progress</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -111,7 +96,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                   </div>
                               </button>
                         </div>
@@ -138,9 +123,6 @@
                 <!-- Header -->
                 <div class="relative flex justify-center items-center mb-6">
                   <h1 class="text-white text-3xl font-bold">Completed</h1>
-                  <button class="absolute right-0 text-white text-2xl">
-                    &bull;&bull;&bull; <!-- Settings dots -->
-                  </button>
                 </div>
 
                 <!-- Adding tasks design and logic  -->
@@ -157,7 +139,7 @@
                           <!-- Elements inside  -->
                               <div class="text-left">
                                   <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ item.dueDate }}</div> <!-- Show only when it's provided -->
+                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
                                 </div>
                             </button>
                         </div>
@@ -230,7 +212,7 @@
     <div>
       <h3 class="font-medium text-lg mb-1">Due Date:</h3>
       <!-- If no date 'No due date set'-->
-      <p class="text-gray-300">{{ selectedTask?.dueDate || 'No due date set' }}</p>
+      <p class="text-gray-300">{{ formatDate(selectedTask?.dueDate) || 'No due date set' }}</p>
     </div>
     
     <div class="flex justify-between space-x-2 mt-4">
@@ -255,6 +237,8 @@
     import NavigationBar from './NavigationBar.vue'
     import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
     import InfoDialog from './PresetsDialogs/InfoDialog.vue'
+    import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
+
 
     const router = useRouter()
     //Navigation
@@ -311,11 +295,17 @@
       dueDate: '',
       isDone: false
     })
+    
 
     const toDoTasks = ref<TaskItem[]>([])
     const inProgressTasks = ref<TaskItem[]>([])
     const completedTasks = ref<TaskItem[]>([])
     const activeTaskList = ref('')
+
+    function formatDate(dateStr: string | undefined): string {
+      return dateStr ? dateStr.slice(0, 16).replace('T', ' ') : '';
+    }
+
 
     async function fetchTasks() {
       try {
@@ -350,10 +340,7 @@
         console.error('Fetching tasks failed:', error)
       }
     }
-    onMounted(() => {
-      fetchTasks()
-    })
-
+ 
 
     async function saveTask() {
       if (!task.value.name.trim()) {
@@ -433,4 +420,9 @@
       }
       closeTaskSettings()
     }
+
+    onMounted(() => {
+      fetchTasks()
+      fetchTeamInfo()
+    })
 </script>
