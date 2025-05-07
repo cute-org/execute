@@ -226,7 +226,7 @@ fetch('/avatar?id=1')
 
 ---
 
-### 🔒📄 GET /group/users
+### 🔒📄 GET /group
 
 Fetches all members of the current user’s group from the database using their session token.
 
@@ -396,12 +396,16 @@ Retrieves basic information about the authenticated user’s group.
 {
   "name": "Group",
   "code": "XY34ZT",
+  "points": 500,
+  "pointsScore": 0,
   "meeting": "2025-05-12T18:30:00Z"
 }
 ```
 *Field Description:*
 - `name` (string) — The group’s display name.
 - `code` (string) — The alphanumeric join code for the group.
+- `points` (int) — The number of points to use for task creation.
+- `pointsScore` (int) — The value of points users gained by completing tasks
 - `meeting` (string, optional) — The scheduled meeting time in ISO 8601 format. Only included if a meeting has been set.
 
 *Error Responses:*
@@ -591,5 +595,64 @@ Updates progress of chosen task.
 - `403 Forbidden` — The user is not part of the same group as the task, or the user is not allowed to modify the step of the task.
 - `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
 - `500 Internal Server Error` — A server error occurred while attempting to update the task's step.
+
+---
+
+### 🔒🏁 PATCH /task/completion
+
+Toggles the completion status of a task within the authenticated user’s group, crediting or debiting the group’s point pool and score.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "taskId": 5,
+  "completed": true,
+  "message": "Task completion status updated successfully"
+}
+```
+*Field Description*
+- `taskId` (integer) — ID of the task to toggle.
+- `completed` (boolean) — `true` to mark as completed, `false` to undo completion.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid JSON, missing fields, invalid task ID, duplicate toggle (e.g. completing an already completed task, undoing a non-completed task), or insufficient points in pool to undo.
+- `401 Unauthorized` — User not authenticated.
+- `403 Forbidden` — User not in same group as the task, or group lookup failed.
+- `404 Not Found` — Task not found or invalid/expired session token.
+- `405 Method Not Allowed` — HTTP method is not PATCH.
+- `500 Internal Server Error` — Database errors (transaction start/commit, query failures, update failures).
+
+---
+
+### 🔒📜 GET /scoreboard
+
+Retrieves a list of all groups sorted by highest `points_score` first.  
+
+*Success Response:*  
+- Status: `200 OK`  
+```json
+[
+  {
+    "id": 1,
+    "name": "Study Buddies",
+    "points_score": 250
+  },
+  {
+    "id": 2,
+    "name": "Project Team",
+    "points_score": 180
+  }
+]
+```
+*Field Descriptions:*
+- `id` (integer) — Unique identifier for the group.
+- `name` (string) — Display name of the group.
+- `points_score` (integer) — Total points accumulated by the group.
+
+*Error Responses:*
+- `404 Not Found` — No group created yet/expired session token.
+- `405 Method Not Allowed` — Only GET is permitted on this endpoint.
+- `500 Internal Server Error` — An unexpected error occurred while retrieving groups.
 
 ---

@@ -78,16 +78,16 @@ func InitDB() {
 	// Create tables if they do not exist
 	createUsers := `
     CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(255) NOT NULL UNIQUE,
-        salt TEXT NOT NULL,
-        passwordhash TEXT NOT NULL,
-        display_name VARCHAR(255),
-        phone VARCHAR(20),
-        birth_date DATE,
-        role VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id               SERIAL PRIMARY KEY,
+        username         VARCHAR(255) NOT NULL UNIQUE,
+        salt             TEXT NOT NULL,
+        passwordhash     TEXT NOT NULL,
+        display_name     VARCHAR(255),
+        phone            VARCHAR(20),
+        birth_date       DATE,
+        role             VARCHAR(255),
+        created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`
 	if _, err := DB.Exec(createUsers); err != nil {
 		log.Fatal("failed to create users table:", err)
@@ -95,11 +95,13 @@ func InitDB() {
 
 	createGroups := `
     CREATE TABLE IF NOT EXISTS groups (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        code TEXT NOT NULL UNIQUE,
-        meeting TIMESTAMP,
-        creator_user_id INTEGER NOT NULL REFERENCES users(id)
+        id               SERIAL PRIMARY KEY,
+        name             TEXT NOT NULL,
+        code             TEXT NOT NULL UNIQUE,
+        meeting          TIMESTAMP,
+        creator_user_id  INTEGER NOT NULL REFERENCES users(id),
+        points           INTEGER NOT NULL DEFAULT 500,
+        points_score     INTEGER NOT NULL DEFAULT 0
     );`
 	if _, err := DB.Exec(createGroups); err != nil {
 		log.Fatal("failed to create groups table:", err)
@@ -129,7 +131,8 @@ func InitDB() {
         name             TEXT        NOT NULL,
         description      TEXT,
         points_value     INTEGER     NOT NULL,
-        step             INTEGER     NOT NULL DEFAULT 1
+        step             INTEGER     NOT NULL DEFAULT 1,
+        completed        BOOLEAN NOT NULL DEFAULT FALSE
     );`
 	if _, err := DB.Exec(createTasks); err != nil {
 		log.Fatal("failed to create tasks table:", err)
