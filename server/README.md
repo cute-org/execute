@@ -624,3 +624,35 @@ Toggles the completion status of a task within the authenticated user’s group,
 - `500 Internal Server Error` — Database errors (transaction start/commit, query failures, update failures).
 
 ---
+
+### 🔒📜 GET /scoreboard
+
+Retrieves a list of all groups sorted by highest `points_score` first.  
+
+*Success Response:*  
+- Status: `200 OK`  
+```json
+[
+  {
+    "id": 1,
+    "name": "Study Buddies",
+    "points_score": 250
+  },
+  {
+    "id": 2,
+    "name": "Project Team",
+    "points_score": 180
+  }
+]
+```
+*Field Descriptions:*
+- `id` (integer) — Unique identifier for the group.
+- `name` (string) — Display name of the group.
+- `points_score` (integer) — Total points accumulated by the group.
+
+*Error Responses:*
+- `404 Not Found` — No group created yet/expired session token.
+- `405 Method Not Allowed` — Only GET is permitted on this endpoint.
+- `500 Internal Server Error` — An unexpected error occurred while retrieving groups.
+
+---

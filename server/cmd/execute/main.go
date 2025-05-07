@@ -8,6 +8,7 @@ import (
 	"execute/internal"
 	"execute/internal/handlers/auth"
 	"execute/internal/handlers/group"
+	"execute/internal/handlers/scoreboard"
 	"execute/internal/handlers/task"
 	"execute/internal/handlers/user"
 	"execute/internal/middleware"
@@ -56,6 +57,9 @@ func main() {
 		"PATCH": task.TaskStepHandler,
 	})))
 	mux.Handle("/task/completion", middleware.ApplyAuthMiddlewares(http.HandlerFunc(task.ToggleTaskCompletionHandler)))
+
+	// SCOREBOARD
+	mux.Handle("/scoreboard", middleware.ApplyAuthMiddlewares(http.HandlerFunc(scoreboard.ScoreboardHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
