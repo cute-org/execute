@@ -23,6 +23,7 @@ type Task struct {
 	Description     string    `json:"description"`
 	PointsValue     int       `json:"pointsValue"`
 	Step            int       `json:"step"`
+	Completed       bool      `json:"completed"`
 }
 
 type createReq struct {
@@ -44,6 +45,11 @@ type updateTaskReq struct {
 type StepUpdateReq struct {
 	TaskID int    `json:"taskId"`
 	Action string `json:"action"`
+}
+
+type completionReq struct {
+	TaskID    int  `json:"taskId"`
+	Completed bool `json:"completed"`
 }
 
 // CreateTaskHandler handles POST /task
@@ -309,5 +315,63 @@ func TaskStepHandler(w http.ResponseWriter, r *http.Request) {
 		"taskId":  req.TaskID,
 		"step":    currentStep,
 		"message": "Task step updated successfully",
+	})
+}
+
+// ToggleTaskCompletionHandler handles PATCH /task/completion
+func ToggleTaskCompletionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req completionReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	groupID, err := user.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
+		return
+	}
+
+	var taskGroupID int
+	err = internal.DB.QueryRow(
+		"SELECT group_id FROM tasks WHERE id=$1", req.TaskID,
+	).Scan(&taskGroupID)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, "Task lookup failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if taskGroupID != groupID {
+		http.Error(w, "Forbidden: You are not in the same group as the task", http.StatusForbidden)
+		return
+	}
+
+	_, err = internal.DB.Exec(
+		"UPDATE tasks SET completed=$1 WHERE id=$2", req.Completed, req.TaskID,
+	)
+	if err != nil {
+		http.Error(w, "Failed to update completion: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"taskId":    req.TaskID,
+		"completed": req.Completed,
+		"message":   "Task completion status updated successfully",
 	})
 }

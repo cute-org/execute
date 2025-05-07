@@ -129,7 +129,8 @@ func InitDB() {
         name             TEXT        NOT NULL,
         description      TEXT,
         points_value     INTEGER     NOT NULL,
-        step             INTEGER     NOT NULL DEFAULT 1
+        step             INTEGER     NOT NULL DEFAULT 1,
+        completed        BOOLEAN NOT NULL DEFAULT FALSE
     );`
 	if _, err := DB.Exec(createTasks); err != nil {
 		log.Fatal("failed to create tasks table:", err)

@@ -55,6 +55,7 @@ func main() {
 		"PUT":   task.UpdateTaskHandler,
 		"PATCH": task.TaskStepHandler,
 	})))
+	mux.Handle("/task/completion", middleware.ApplyAuthMiddlewares(http.HandlerFunc(task.ToggleTaskCompletionHandler)))
 
 	// v1
 	muxWithPrefix := http.StripPrefix("/api/v1", mux)
