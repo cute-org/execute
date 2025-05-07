@@ -99,7 +99,9 @@ func InitDB() {
         name             TEXT NOT NULL,
         code             TEXT NOT NULL UNIQUE,
         meeting          TIMESTAMP,
-        creator_user_id  INTEGER NOT NULL REFERENCES users(id)
+        creator_user_id  INTEGER NOT NULL REFERENCES users(id),
+        points           INTEGER NOT NULL DEFAULT 500,
+        points_score     INTEGER NOT NULL DEFAULT 0
     );`
 	if _, err := DB.Exec(createGroups); err != nil {
 		log.Fatal("failed to create groups table:", err)

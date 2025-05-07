@@ -59,18 +59,21 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Authenticate user
 	userID, err := auth.GetUserID(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
+	// Get user's group
 	groupID, err := user.GetUserGroupID(userID)
 	if err != nil {
 		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
 		return
 	}
 
+	// Decode request
 	var req createReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
@@ -81,18 +84,60 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Start transaction
+	tx, err := internal.DB.Begin()
+	if err != nil {
+		http.Error(w, "Failed to start transaction: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Lock and check group's point pool
+	var poolPoints int
+	if err := tx.QueryRow(
+		"SELECT points FROM groups WHERE id = $1 FOR UPDATE",
+		groupID,
+	).Scan(&poolPoints); err != nil {
+		http.Error(w, "Failed to fetch points pool: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if poolPoints < req.PointsValue {
+		http.Error(w,
+			fmt.Sprintf("Not enough points in pool (have %d, need %d)", poolPoints, req.PointsValue),
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	// Deduct points
+	if _, err := tx.Exec(
+		"UPDATE groups SET points = points - $1 WHERE id = $2",
+		req.PointsValue, groupID,
+	); err != nil {
+		http.Error(w, "Failed to debit points pool: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Insert task
 	var taskID int
-	err = internal.DB.QueryRow(
+	if err := tx.QueryRow(
 		`INSERT INTO tasks
 		   (group_id, creator_user_id, due_date, name, description, points_value, step)
-		 VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+		 VALUES ($1,$2,$3,$4,$5,$6,$7)
+		 RETURNING id`,
 		groupID, userID, req.DueDate, req.Name, req.Description, req.PointsValue, req.Step,
-	).Scan(&taskID)
-	if err != nil {
+	).Scan(&taskID); err != nil {
 		http.Error(w, "Failed to create task: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		http.Error(w, "Failed to commit transaction: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch creator username and respond
 	var username string
 	if err := internal.DB.QueryRow(
 		"SELECT username FROM users WHERE id=$1", userID,
@@ -325,46 +370,111 @@ func ToggleTaskCompletionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Decode request
 	var req completionReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// Authenticate user
 	userID, err := auth.GetUserID(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
+	// Get user's group
 	groupID, err := user.GetUserGroupID(userID)
 	if err != nil {
 		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
 		return
 	}
 
-	var taskGroupID int
-	err = internal.DB.QueryRow(
-		"SELECT group_id FROM tasks WHERE id=$1", req.TaskID,
-	).Scan(&taskGroupID)
-	if err == sql.ErrNoRows {
-		http.Error(w, "Task not found", http.StatusNotFound)
+	// Start transaction
+	tx, err := internal.DB.Begin()
+	if err != nil {
+		http.Error(w, "Failed to start transaction: "+err.Error(), http.StatusInternalServerError)
 		return
-	} else if err != nil {
-		http.Error(w, "Task lookup failed: "+err.Error(), http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
+
+	// Lock and fetch group
+	var poolPoints int
+	if err := tx.QueryRow(
+		"SELECT points FROM groups WHERE id = $1 FOR UPDATE",
+		groupID,
+	).Scan(&poolPoints); err != nil {
+		http.Error(w, "Failed to fetch points pool: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Load task details and current completion flag
+	var taskGroupID, taskPointsVal int
+	var currentCompleted bool
+	if err := tx.QueryRow(
+		"SELECT group_id, points_value, completed FROM tasks WHERE id=$1 FOR UPDATE",
+		req.TaskID,
+	).Scan(&taskGroupID, &taskPointsVal, &currentCompleted); err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Task not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Task lookup failed: "+err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
 	if taskGroupID != groupID {
 		http.Error(w, "Forbidden: You are not in the same group as the task", http.StatusForbidden)
 		return
 	}
 
-	_, err = internal.DB.Exec(
-		"UPDATE tasks SET completed=$1 WHERE id=$2", req.Completed, req.TaskID,
-	)
-	if err != nil {
+	// Prevent duplicate toggles
+	if req.Completed && currentCompleted {
+		http.Error(w, "Task is already completed", http.StatusBadRequest)
+		return
+	}
+	if !req.Completed && !currentCompleted {
+		http.Error(w, "Task is not completed", http.StatusBadRequest)
+		return
+	}
+
+	// Credit/debit group pool and update group score
+	if req.Completed {
+		// mark complete: return points & credit group score
+		if _, err := tx.Exec(
+			"UPDATE groups SET points = points + $1, points_score = points_score + $1 WHERE id = $2",
+			taskPointsVal, groupID,
+		); err != nil {
+			http.Error(w, "Failed to update group points and score: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// undo complete: take points & debit group score
+		if poolPoints < taskPointsVal {
+			http.Error(w, "Not enough points in pool to undo completion", http.StatusBadRequest)
+			return
+		}
+		if _, err := tx.Exec(
+			"UPDATE groups SET points = points - $1, points_score = points_score - $1 WHERE id = $2",
+			taskPointsVal, groupID,
+		); err != nil {
+			http.Error(w, "Failed to update group points and score: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Update task.completed flag
+	if _, err := tx.Exec(
+		"UPDATE tasks SET completed = $1 WHERE id = $2",
+		req.Completed, req.TaskID,
+	); err != nil {
 		http.Error(w, "Failed to update completion: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		http.Error(w, "Failed to commit transaction: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -35,9 +35,11 @@ type updateGroupReq struct {
 }
 
 type groupInfoResp struct {
-	Name    string    `json:"name"`
-	Code    string    `json:"code"`
-	Meeting time.Time `json:"meeting,omitempty"`
+	Name        string    `json:"name"`
+	Code        string    `json:"code"`
+	Points      int       `json:"points"`
+	PointsScore int       `json:"pointsScore"`
+	Meeting     time.Time `json:"meeting,omitempty"`
 }
 
 type setMeetingReq struct {
@@ -262,18 +264,21 @@ func GetGroupInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var name, code string
+	var points, pointsScore int
 	var meeting sql.NullTime
 	err = internal.DB.QueryRow(
-		`SELECT name, code, meeting FROM groups WHERE id = $1`, groupID,
-	).Scan(&name, &code, &meeting)
+		`SELECT name, code, points, points_score, meeting FROM groups WHERE id = $1`, groupID,
+	).Scan(&name, &code, &points, &pointsScore, &meeting)
 	if err != nil {
 		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	resp := groupInfoResp{
-		Name: name,
-		Code: code,
+		Name:        name,
+		Code:        code,
+		Points:      points,
+		PointsScore: pointsScore,
 	}
 	if meeting.Valid {
 		resp.Meeting = meeting.Time
