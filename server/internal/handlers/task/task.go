@@ -34,6 +34,10 @@ type createReq struct {
 	Step        int       `json:"step"`
 }
 
+type deleteReq struct {
+	TaskID int `json:"taskId"`
+}
+
 type updateTaskReq struct {
 	TaskID      int       `json:"taskId"`
 	DueDate     time.Time `json:"dueDate"`
@@ -178,7 +182,8 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		  t.name,
 		  t.description,
 		  t.points_value,
-		  t.step
+		  t.step,
+          t.completed
 		FROM tasks t
 		JOIN users u ON u.id = t.creator_user_id
 		WHERE t.group_id = $1`,
@@ -204,6 +209,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 			&t.Description,
 			&t.PointsValue,
 			&t.Step,
+			&t.Completed,
 		); err != nil {
 			http.Error(w, "Failed to scan task", http.StatusInternalServerError)
 			return
@@ -483,5 +489,127 @@ func ToggleTaskCompletionHandler(w http.ResponseWriter, r *http.Request) {
 		"taskId":    req.TaskID,
 		"completed": req.Completed,
 		"message":   "Task completion status updated successfully",
+	})
+}
+
+// DeleteTaskHandler handles DELETE /task
+func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Authenticate user
+	userID, err := auth.GetUserID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Decode JSON body
+	var req deleteReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Lookup groupID
+	groupID, err := user.GetUserGroupID(userID)
+	if err != nil {
+		http.Error(w, "Group lookup failed: "+err.Error(), http.StatusForbidden)
+		return
+	}
+
+	// Start transaction
+	tx, err := internal.DB.Begin()
+	if err != nil {
+		http.Error(w, "Failed to start transaction: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Lock and fetch group pool
+	var poolPoints int
+	if err := tx.QueryRow(
+		"SELECT points FROM groups WHERE id = $1 FOR UPDATE",
+		groupID,
+	).Scan(&poolPoints); err != nil {
+		http.Error(w, "Failed to fetch group points: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Lock and fetch task details
+	var taskGroupID, creatorID, pointsVal int
+	var completed bool
+	err = tx.QueryRow(
+		`SELECT group_id, creator_user_id, points_value, completed
+		   FROM tasks
+		  WHERE id = $1
+		    FOR UPDATE`,
+		req.TaskID,
+	).Scan(&taskGroupID, &creatorID, &pointsVal, &completed)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to fetch task: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Permission check: only creator can delete
+	if creatorID != userID {
+		http.Error(w, "Forbidden: only the creator can delete", http.StatusForbidden)
+		return
+	}
+
+	// Ensure same group
+	if taskGroupID != groupID {
+		http.Error(w, "Forbidden: task does not belong to your group", http.StatusForbidden)
+		return
+	}
+
+	// Return points to pool only if the task is not already completed
+	if !completed {
+		if _, err := tx.Exec(
+			"UPDATE groups SET points = points + $1 WHERE id = $2",
+			pointsVal, groupID,
+		); err != nil {
+			http.Error(w, "Failed to return points to pool: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Delete the task
+	if _, err := tx.Exec(
+		"DELETE FROM tasks WHERE id = $1",
+		req.TaskID,
+	); err != nil {
+		http.Error(w, "Failed to delete task: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		http.Error(w, "Failed to commit transaction: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"taskId":  req.TaskID,
+		"deleted": true,
+		"returnedPoints": func() int {
+			if !completed {
+				return pointsVal
+			}
+			return 0
+		}(),
+		"message": fmt.Sprintf("Task %d deleted.%s", req.TaskID,
+			func() string {
+				if !completed {
+					return fmt.Sprintf(" %d points returned to pool.", pointsVal)
+				}
+				return ""
+			}()),
 	})
 }

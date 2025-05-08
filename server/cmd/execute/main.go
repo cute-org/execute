@@ -51,10 +51,11 @@ func main() {
 
 	// TASK
 	mux.Handle("/task", middleware.ApplyAuthMiddlewares(middleware.Router(map[string]http.HandlerFunc{
-		"GET":   task.ListTasksHandler,
-		"POST":  task.CreateTaskHandler,
-		"PUT":   task.UpdateTaskHandler,
-		"PATCH": task.TaskStepHandler,
+		"GET":    task.ListTasksHandler,
+		"POST":   task.CreateTaskHandler,
+		"PUT":    task.UpdateTaskHandler,
+		"PATCH":  task.TaskStepHandler,
+		"DELETE": task.DeleteTaskHandler,
 	})))
 	mux.Handle("/task/completion", middleware.ApplyAuthMiddlewares(http.HandlerFunc(task.ToggleTaskCompletionHandler)))
 

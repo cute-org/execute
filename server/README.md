@@ -500,7 +500,8 @@ Fetches all tasks for the authenticated user's group.
     "dueDate": "2025-04-20T10:00:00Z",
     "name": "Task Name",
     "description": "Task description",
-    "pointsValue": 10
+    "pointsValue": 10,
+    "completed": false
   },
   {
     "id": 2,
@@ -511,7 +512,8 @@ Fetches all tasks for the authenticated user's group.
     "dueDate": "2025-04-25T10:00:00Z",
     "name": "Another Task",
     "description": "Another description",
-    "pointsValue": 15
+    "pointsValue": 15,
+    "completed": true
   }
 ]
 ```
@@ -595,6 +597,45 @@ Updates progress of chosen task.
 - `403 Forbidden` — The user is not part of the same group as the task, or the user is not allowed to modify the step of the task.
 - `404 Unauthorized/Not Found` — No session token found, token is invalid/expired or task not found.
 - `500 Internal Server Error` — A server error occurred while attempting to update the task's step.
+
+---
+
+### 🔒🗑️ DELETE /task
+
+Deletes an existing task and returns its points to the group pool if it wasn’t already completed.
+
+*Request Body:*
+```json
+{
+  "taskId": 1
+}
+```
+*Field Descriptions:*
+- `taskId` (integer) — The ID of the task to be deleted.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "taskId": 1,
+  "deleted": true,
+  "returnedPoints": 10,
+  "message": "Task 1 deleted. 10 points returned to pool."
+}
+```
+*Field Description:*
+- `taskId` (integer) — ID of the deleted task.
+- `deleted` (boolean) — Always true if the deletion succeeded.
+- `returnedPoints` (integer) — Number of points returned to the pool (zero if the task was already completed).
+- `message` (string) — Confirmation message.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid JSON body or missing/invalid taskId.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not the creator of the task, or the task does not belong to their group.
+- `404 Not Found` — Task with the given ID does not exist/expired session token.
+- `405 Method Not Allowed` — HTTP method is not DELETE.
+- `500 Internal Server Error` — Database transaction or query failure.
 
 ---
 
