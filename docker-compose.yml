@@ -3,39 +3,41 @@ version: '3.8'
 services:
   backend:
     build: ./server
-    container_name: backend
     ports:
       - "8437:8437"
     depends_on:
-      - db
+      - cloudsql-proxy
     environment:
-      - DB_HOST=db
+      - DB_HOST=cloudsql-proxy
       - DB_PORT=5432
       - DB_USER=execute
       - DB_PASSWORD=execute
       - DB_NAME=execute_db
       - DB_SSLMODE=disable
     restart: on-failure
-    
+    networks:
+      - back-end
+
   frontend:
     build: ./web
-    container_name: frontend
     ports:
-    - "5173:5173"
+      - "5173:5173"
     restart: on-failure
+    networks:
+      - front-end
+      - back-end
 
-  db:
-    image: postgres:17.4-alpine
-    container_name: postgres-db
-    environment:
-      POSTGRES_USER: execute
-      POSTGRES_PASSWORD: execute
-      POSTGRES_DB: execute_db
+  cloudsql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.15.2
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - ./credentials.json:/credentials.json
+    command: --address=0.0.0.0 --port=5432 --credentials-file /credentials.json pure-wall-459114-v4:europe-central2:execute-db
+    restart: always
+    networks:
+      - back-end
 
-volumes:
-  postgres_data:
+networks:
+  front-end:
+  back-end:
