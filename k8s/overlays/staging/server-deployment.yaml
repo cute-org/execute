@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: server
-      image: europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:v1
+      image: europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:latest
       ports:
         - containerPort: 8437
       env:
