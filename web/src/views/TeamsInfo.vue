@@ -36,14 +36,22 @@
         </div>
 
         <!-- Members -->
-        <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
-          <div class="w-6 h-5 rounded-full bg-purple-50"> </div>
-          <div class="flex justify-between w-full text-white text-sm">
-            <span class="">Member 1</span>
-            <span class="text-right">Project Leader</span>
+        <div v-if="usersData.length > 0" class="space-y-2">
+          <div v-for="user in usersData" :key="user.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4" >
+            <div class="w-6 h-5 rounded-full bg-purple-50"></div>
+            <div class="flex justify-between w-full text-white text-sm">
+              <span> {{ user.display_name || user.username }} </span>
+              <span class="text-right"> {{ user.role }} </span>
+            </div>
           </div>
+        </div> 
+          <div v-else class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+            <div class="flex justify-center w-full text-white text-sm">
+              <span>Loading members...</span>
+            </div>
         </div>
       </div>
+      
       <!-- Next meeting section -->
       <div @click="openMeetingDialog" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative hover:opacity-90 transition-opacity">
         <div class="flex justify-center pb-4">
@@ -55,18 +63,22 @@
         </div>
      </div>
      <!-- Scoreboard section -->
-     <div class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
+     <div v-if="teamsData.length > 0" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
       <!-- Headline -->
-       <!-- We should delete scoreboard tbh -->
       <div class="flex justify-center pb-8">
           <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
         </div>
-        <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+        <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
           <div class="flex justify-between w-full text-white text-sm">
-            <span class="">Team 1 </span>
-            <span class="text-right">500 points</span>
+            <span>{{ team.name }}</span>
+            <span class="text-right">{{ team.points_score }}</span>
           </div>
         </div>
+      </div>
+      <div v-else class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+            <div class="flex justify-center w-full text-white text-sm">
+              <span>Loading members...</span>
+            </div>
       </div>
     </div>
    </div>
@@ -93,6 +105,8 @@
   import TeamDialog from './PresetsDialogs/TeamDialog.vue'
   import MeetingDialog from './PresetsDialogs/MeetingDialog.vue'
   import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
+  import { fetchTeamUsersInfo, usersData } from './PresetsScripts/FetchUsersGroup'
+  import { fetchScoreboardInfo, teamsData } from './PresetsScripts/FetchScoreboard'
 
   const router = useRouter()
   //navigation using NavigationBar Preset
@@ -135,5 +149,7 @@
 
   onMounted(() => {
     fetchTeamInfo()
+    fetchTeamUsersInfo()
+    fetchScoreboardInfo()
   })
 </script>

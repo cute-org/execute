@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 export const teamData = ref({
-    name: 'No data',
+    name: 'No group',
     code: '',
     meeting: null,
   });

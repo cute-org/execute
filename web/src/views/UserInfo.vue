@@ -32,11 +32,11 @@
         </div>
 
         <div class="flex px-8 py-4 bg-infoBg items-center justify-center text-center rounded-3xl border-borderColor border-2 border-solid">
-          <h1 class="text-[48px]" v-if="userData">{{ userData.display_name }}</h1>
+          <h1 class="text-[48px]" v-if="userData">{{ userData.display_name || 'Set your data'}}</h1>
           <h1 class="text-[48px]" v-else>Loading...</h1>
         </div>
         <div class="px-4 mt-[-1px] bg-infoBg text-center rounded-3xl border-borderColor border-2 border-solid">
-          <h1 class="text-[18px]" v-if="userData">{{ userData.role }}</h1>
+          <h1 class="text-[18px]" v-if="userData">{{ userData.role || 'None'}}</h1>
           <h1 class="text-[18px]" v-else>Loading...</h1>
         </div>
 
@@ -61,17 +61,14 @@
             <!-- Phone Number -->
             <div class="w-full bg-fillingInfo rounded-xl px-6 py-2 flex relative">
               <span class="text-left absolute text-white">Phone: </span>
-              <span class="text-center w-full text-white">{{ userData.phone }}</span>
+              <span class="text-center w-full text-white">{{ userData.phone || 'Set your user data'}}</span>
             </div>
             <!-- Birth date -->
             <div class="w-full bg-fillingInfo rounded-xl px-6 py-2 flex relative">
               <span class="text-left absolute text-white">Birth date: </span>
-              <span class="text-center w-full text-white">{{ userData.birthdate }}</span>
+              <span class="text-center w-full text-white">{{ userData.birthdate || 'Set your user data'}}</span>
             </div>
            </div>
-          <div v-else>
-            <span>Set your user data</span>
-          </div>
         </div>
       </div>
     </div>
@@ -92,7 +89,7 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import NavigationBar from './NavigationBar.vue'
 import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
 import InfoDialog from './PresetsDialogs/InfoDialog.vue'
