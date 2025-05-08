@@ -5,7 +5,7 @@ export async function toggleCompletion(task) {
             return;
         }
           
-      const response = await fetch('http://localhost:8437/api/v1/task/completion', {
+      const response = await fetch('api/v1/task/completion', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
