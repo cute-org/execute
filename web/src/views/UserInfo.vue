@@ -148,24 +148,20 @@ onMounted(async () => {
 
     if (userResponse.ok) {
       userData.value = await userResponse.json()
-    } else {
-      console.error('Failed to fetch user data', userResponse.status)
-    }
-  } catch(error) {
-    console.error('Error fetching user data:', error)
-  }
 
-  try {
-    const userResponse = await fetch('api/v1/avatar', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+      const avatarResponse = await fetch(`api/v1/avatar?id=${userData.value.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      })
 
-    if (userResponse.ok) {
-      userAvatar.value = await userResponse.json()
+      if (avatarResponse.ok) {
+        userAvatar.value = await avatarResponse.json()
+      } else {
+        console.error('Failed to fetch avatar', avatarResponse.status)
+      }
     } else {
       console.error('Failed to fetch user data', userResponse.status)
     }
