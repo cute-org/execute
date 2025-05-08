@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -109,8 +110,27 @@ func handleJSONUpdate(w http.ResponseWriter, r *http.Request, userID int) {
 
 	// Handle avatar update if provided
 	if req.Avatar != nil {
+		base64Data := *req.Avatar
+
+		switch {
+		case strings.HasPrefix(base64Data, "data:image/png;base64,"):
+			base64Data = strings.TrimPrefix(base64Data, "data:image/png;base64,")
+		case strings.HasPrefix(base64Data, "data:image/jpeg;base64,"):
+			base64Data = strings.TrimPrefix(base64Data, "data:image/jpeg;base64,")
+		case strings.HasPrefix(base64Data, "data:image/jpg;base64,"):
+			base64Data = strings.TrimPrefix(base64Data, "data:image/jpg;base64,")
+		default:
+			http.Error(w, "Unsupported image format; only PNG, JPEG and JPG are allowed", http.StatusBadRequest)
+			return
+		}
+
+		avatarBytes, err := base64.StdEncoding.DecodeString(base64Data)
+		if err != nil {
+			http.Error(w, "Invalid base64 avatar data", http.StatusBadRequest)
+			return
+		}
 		updates = append(updates, "avatar = $"+strconv.Itoa(argPos))
-		args = append(args, *req.Avatar)
+		args = append(args, avatarBytes)
 		argPos++
 	}
 
