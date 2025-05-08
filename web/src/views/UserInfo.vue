@@ -149,7 +149,7 @@ onMounted(async () => {
     if (userResponse.ok) {
       userData.value = await userResponse.json()
 
-      const avatarResponse = await fetch(`http://localhost:8437/api/v1/avatar?id=${userData.value.id}`, {
+      const avatarResponse = await fetch(`api/v1/avatar?id=${userData.value.id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
