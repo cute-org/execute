@@ -167,7 +167,7 @@ import InfoDialog from './PresetsDialogs/InfoDialog.vue'
 
    onMounted(async () => {
       try {
-        const response = await fetch('http://localhost:8437/api/v1/task', {
+        const response = await fetch('api/v1/task', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

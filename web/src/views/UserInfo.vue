@@ -138,7 +138,7 @@ const updateUserAvatar = (newUserAvatar) => {
 }
 onMounted(async () => {
   try {
-    const userResponse = await fetch('http://localhost:8437/api/v1/user/current', {
+    const userResponse = await fetch('api/v1/user/current', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
