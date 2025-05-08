@@ -598,6 +598,45 @@ Updates progress of chosen task.
 
 ---
 
+### 🔒🗑️ DELETE /task
+
+Deletes an existing task and returns its points to the group pool if it wasn’t already completed.
+
+*Request Body:*
+```json
+{
+  "taskId": 1
+}
+```
+*Field Descriptions:*
+- `taskId` (integer) — The ID of the task to be deleted.
+
+*Success Response:*
+- Status: `200 OK`
+```json
+{
+  "taskId": 1,
+  "deleted": true,
+  "returnedPoints": 10,
+  "message": "Task 1 deleted. 10 points returned to pool."
+}
+```
+*Field Description:*
+- `taskId` (integer) — ID of the deleted task.
+- `deleted` (boolean) — Always true if the deletion succeeded.
+- `returnedPoints` (integer) — Number of points returned to the pool (zero if the task was already completed).
+- `message` (string) — Confirmation message.
+
+*Error Responses:*
+- `400 Bad Request` — Invalid JSON body or missing/invalid taskId.
+- `401 Unauthorized` — User is not authenticated.
+- `403 Forbidden` — User is not the creator of the task, or the task does not belong to their group.
+- `404 Not Found` — Task with the given ID does not exist/expired session token.
+- `405 Method Not Allowed` — HTTP method is not DELETE.
+- `500 Internal Server Error` — Database transaction or query failure.
+
+---
+
 ### 🔒🏁 PATCH /task/completion
 
 Toggles the completion status of a task within the authenticated user’s group, crediting or debiting the group’s point pool and score.
