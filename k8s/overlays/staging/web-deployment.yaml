@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+  namespace: staging
+  labels:
+    app: web
+spec:
+  containers:
+    - name: web
+      image: europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:v1
+      ports:
+        - containerPort: 5173
+      env:
+        - name: BACKEND_URL
+          value: "http://server.staging.svc.cluster.local:8437"
