@@ -178,7 +178,8 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 		  t.name,
 		  t.description,
 		  t.points_value,
-		  t.step
+		  t.step,
+          t.completed
 		FROM tasks t
 		JOIN users u ON u.id = t.creator_user_id
 		WHERE t.group_id = $1`,
@@ -204,6 +205,7 @@ func ListTasksHandler(w http.ResponseWriter, r *http.Request) {
 			&t.Description,
 			&t.PointsValue,
 			&t.Step,
+			&t.Completed,
 		); err != nil {
 			http.Error(w, "Failed to scan task", http.StatusInternalServerError)
 			return
