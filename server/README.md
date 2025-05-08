@@ -500,7 +500,8 @@ Fetches all tasks for the authenticated user's group.
     "dueDate": "2025-04-20T10:00:00Z",
     "name": "Task Name",
     "description": "Task description",
-    "pointsValue": 10
+    "pointsValue": 10,
+    "completed": false
   },
   {
     "id": 2,
@@ -511,7 +512,8 @@ Fetches all tasks for the authenticated user's group.
     "dueDate": "2025-04-25T10:00:00Z",
     "name": "Another Task",
     "description": "Another description",
-    "pointsValue": 15
+    "pointsValue": 15,
+    "completed": true
   }
 ]
 ```
