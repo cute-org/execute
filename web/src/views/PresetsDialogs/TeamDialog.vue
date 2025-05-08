@@ -25,8 +25,18 @@
                 <p class="font-medium text-lg font-mono text-white">{{ teamData.code }}</p>
               </div>
             </div>
-  
-            <div class="grid grid-cols-2 gap-4">
+
+              <!-- Leave button -->
+              <div v-if="teamData.name !== 'No group'" class="mt-4">
+                <button
+                  @click="leaveGroup"
+                  class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Leave Group
+                </button>
+              </div>
+
+            <div v-if="!teamData.name || teamData.name === 'No group'" class="grid grid-cols-2 gap-4">
               <button
                 @click="isCreating = true"
                 class="flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
@@ -60,7 +70,6 @@
                   required
                 />
               </div>
-              
               <p v-if="error" class="text-red-400 text-sm">{{ error }}</p>
               
               <div class="flex gap-3">
@@ -128,7 +137,9 @@
   <script setup>
   import { ref, watch } from 'vue';
   import { Dialog, DialogPanel } from '@headlessui/vue';
-  import { fetchTeamInfo, teamData } from '../PresetsScripts/GroupInfo.ts'
+  import { fetchTeamInfo, teamData as rawTeamData } from '../PresetsScripts/GroupInfo.ts';
+  import { computed } from 'vue';
+  import { handleLeaveGroup } from '../PresetsScripts/LeaveGroup.js';
   
   const props = defineProps({
     show: {
@@ -166,6 +177,18 @@
     fetchTeamInfo();
   }
 });
+
+const teamData = computed(() => rawTeamData.value); //for buttons to leave/join/create visibility
+
+const leaveGroup = () => {
+  handleLeaveGroup(
+    () => {
+      closeDialog();
+      window.location.reload();
+    }
+  )
+}
+
   
   const closeDialog = () => {
     isOpen.value = false;

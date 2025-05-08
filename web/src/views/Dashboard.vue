@@ -23,7 +23,7 @@
           <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
         </div>
         <!-- Points placeholder -->
-        <div class="ml-1 text-[10px] text-white-300 font-adlam">Points: 100/1049</div>
+        <div class="ml-1 text-[10px] text-white-300 font-adlam">{{ teamData.points_score || 'No points yet' }} </div>
       </div>
        
       <!-- Main content area -->
@@ -46,7 +46,7 @@
                   >
                   
                     <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
                             <button @click="openTaskSettings(item, 'todo', index)
                             ">
 
@@ -89,7 +89,7 @@
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
                   <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
                             <button @click="openTaskSettings(item, 'todo', index)
                             ">
 
@@ -133,7 +133,7 @@
                   class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
                   >
                   <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.isDone, 'bg-gray-500': !item.isDone}" class="w-4 h-4 rounded-full mr-3" @click="item.isDone = !item.isDone"></div>
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
                             <button @click="openTaskSettings(item, 'todo', index)
                             ">
                           <!-- Elements inside  -->
@@ -238,7 +238,7 @@
     import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
     import InfoDialog from './PresetsDialogs/InfoDialog.vue'
     import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
-
+    import { toggleCompletion } from './PresetsScripts/taskCompletion';
 
     const router = useRouter()
     //Navigation
@@ -281,11 +281,12 @@
     }
     
     interface TaskItem {
+      id?: number,
       name: string,
       description: string,
       points: number,
       dueDate: string,
-      isDone: boolean
+      completed: boolean,
     }
     
     const task = ref<TaskItem>({
@@ -293,7 +294,8 @@
       description: '',
       points: 0, //Number
       dueDate: '',
-      isDone: false
+      completed: false,
+      id: undefined
     })
     
 
@@ -321,11 +323,12 @@
 
           tasks.forEach((task: any) => {
             const taskItem: TaskItem = {
+              id: task.id,
               name: task.name,
               description: task.description,
               points: task.pointsValue,
               dueDate: task.dueDate,
-              isDone: false,
+              completed: task.completed || false,
             }
               if (task.step === 1) {
               toDoTasks.value.push(taskItem)
@@ -365,7 +368,7 @@
       
 
     try {
-        const respone = await fetch('http://localhost:8437/api/v1/task', {
+        const response = await fetch('http://localhost:8437/api/v1/task', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -374,7 +377,14 @@
           credentials: 'include',
         })        
       
-
+        if (response.ok) {
+          const result = await response.json();
+          
+          const newTask = {
+            ...task.value,
+            id: result.id 
+          };
+          
       // Adding to specific list
       if (activeTaskList.value == 'todo') {
         toDoTasks.value.push({...task.value})
@@ -383,8 +393,12 @@
       } else if (activeTaskList.value == 'completed') {
         completedTasks.value.push({...task.value})
       }
+      fetchTeamInfo();
+      window.location.reload();
+    }
       console.log("Load to server:", load)
       closeModal()
+
     } catch (error) {
         console.error('Request error:', error);
     }
@@ -425,4 +439,42 @@
       fetchTasks()
       fetchTeamInfo()
     })
+
+    import { VueDraggable } from 'vue-draggable-next';
+  
+  // Existing code...
+  
+  // Function to handle task movement between columns
+  async function onDragChange(event, newStepId) {
+    // Check if this is an item being added to this list
+    if (event.added) {
+      const task = event.added.element;
+      
+      // Update the task's step on the server
+      try {
+        const response = await fetch(`http://localhost:8437/api/v1/task/${task.id}/step`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            step: newStepId
+          })
+        });
+        
+        if (!response.ok) {
+          // If server update fails, refresh all tasks to restore the original state
+          console.error(`Failed to update task step: ${response.status}`);
+          await fetchTasks();
+        } else {
+          // Update was successful, refresh team points
+          fetchTeamInfo();
+        }
+      } catch (error) {
+        console.error('Error updating task step:', error);
+        await fetchTasks(); // Restore original state
+      }
+    }
+  }
 </script>
