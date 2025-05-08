@@ -159,7 +159,6 @@
   const isLoading = ref(false);
  
   
-  const API_BASE_URL = 'http://localhost:8437/api/v1';
   //  prop changes
   watch(() => props.show, (newVal) => {
     isOpen.value = newVal;
@@ -200,7 +199,7 @@ const leaveGroup = () => {
 
   const handleCreateGroup = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/group`, {
+      const response = await fetch('api/v1/group', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -220,7 +219,7 @@ const leaveGroup = () => {
 
 const handleJoinGroup = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/group/join`, {
+    const response = await fetch('api/v1/group/join', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
