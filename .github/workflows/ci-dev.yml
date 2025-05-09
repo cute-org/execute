@@ -5,10 +5,6 @@ on:
     branches:
       - dev
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   merge-to-staging:
     runs-on: ubuntu-latest
@@ -30,7 +26,7 @@ jobs:
       - name: Checkout staging branch
         run: git checkout -B staging origin/staging
 
-      - name: Copy only changed files from dev to staging (excluding protected config files)
+      - name: Copy only the changed files from dev to staging (excluding protected config files)
         run: |
           git diff --name-only origin/staging..origin/dev -- web/ | while read file; do
             case "$file" in
