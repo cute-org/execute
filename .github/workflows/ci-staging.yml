@@ -1,14 +1,28 @@
 name: CI/CD
 
 on:
+  workflow_run:
+    workflows: ["CI Merge to Staging"]
+    types:
+      - completed
+  pull_request:
+    branches:
+      - staging
   push:
     branches:
       - staging
+
+permissions:
+  contents: read
 
 jobs:
   build-and-deploy:
     name: Build and Deploy to Staging
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: Checkout code
@@ -30,9 +44,6 @@ jobs:
         run: |
           docker build -f web/Dockerfile -t europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:v${VERSION} web/
           docker push europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:v${VERSION}
-
-      - name: Tag Web Image as Latest
-        run: |
           docker tag europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:v${VERSION} europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:latest
           docker push europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/web:latest
 
@@ -40,9 +51,6 @@ jobs:
         run: |
           docker build -f server/Dockerfile -t europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:v${VERSION} server/
           docker push europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:v${VERSION}
-
-      - name: Tag Server Image as Latest
-        run: |
           docker tag europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:v${VERSION} europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:latest
           docker push europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:latest
 
