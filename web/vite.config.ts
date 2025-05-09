@@ -1,17 +1,17 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [vue()],
-  base: '/', // lub inna ścieżka, jeśli serwujesz z podkatalogu
+  base: '/', // zmień jeśli serwujesz z podkatalogu
   server: {
     host: '0.0.0.0',
-    port: 5173,  // Port w trybie deweloperskim
+    port: 80,
     strictPort: true,
     cors: true,
     proxy: {
       '/api': {
-        target: 'http://server:8437', // API w trybie deweloperskim
+        target: 'http://server:8437',
         changeOrigin: true,
       }
     }
@@ -20,4 +20,4 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
   }
-})
+}))
