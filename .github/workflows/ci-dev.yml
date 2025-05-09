@@ -52,20 +52,17 @@ jobs:
           esac
         done
 
-    - name: Check status and diff
-      run: |
-        git status
-        git diff --stat
-
     - name: Stage all changes
       run: git add .
 
-    - name: Commit and Push changes to staging
+    - name: Commit and Push changes to staging (with empty commit fallback)
       run: |
-        if [[ $(git status --porcelain) ]]; then
+        if [[ -n $(git status --porcelain) ]]; then
           git commit -m "Merged changed files from dev to staging, excluding protected configs"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push origin staging
         else
-          echo "No changes to commit"
+          echo "No file changes – creating empty commit to trigger CI/CD"
+          git commit --allow-empty -m "Trigger CI/CD on staging (no file changes)"
         fi
+
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git push origin staging
