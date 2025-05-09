@@ -5,64 +5,71 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   merge-to-staging:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        persist-credentials: true
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: true
 
-    - name: Set up Git
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
-    - name: Fetch all branches
-      run: git fetch --all
+      - name: Fetch all branches
+        run: git fetch --all
 
-    - name: Checkout staging branch
-      run: git checkout -B staging origin/staging
+      - name: Checkout staging branch
+        run: git checkout -B staging origin/staging
 
-    - name: Copy only the changed files from dev to staging (excluding protected config files)
-      run: |
-        git diff --name-only origin/staging..origin/dev -- web/ | while read file; do
-          case "$file" in
-            web/Dockerfile|web/vite.config.ts|web/nginx.conf)
-              echo "Skipping protected file: $file"
-              ;;
-            *)
-              echo "Copying $file from dev"
-              git checkout origin/dev -- "$file"
-              ;;
-          esac
-        done
+      - name: Copy only changed files from dev to staging (excluding protected config files)
+        run: |
+          git diff --name-only origin/staging..origin/dev -- web/ | while read file; do
+            case "$file" in
+              web/Dockerfile|web/vite.config.ts|web/nginx.conf)
+                echo "Skipping protected file: $file"
+                ;;
+              *)
+                echo "Copying $file from dev"
+                git checkout origin/dev -- "$file"
+                ;;
+            esac
+          done
 
-        git diff --name-only origin/staging..origin/dev -- server/ | while read file; do
-          case "$file" in
-            server/Dockerfile)
-              echo "Skipping protected file: $file"
-              ;;
-            *)
-              echo "Copying $file from dev"
-              git checkout origin/dev -- "$file"
-              ;;
-          esac
-        done
+          git diff --name-only origin/staging..origin/dev -- server/ | while read file; do
+            case "$file" in
+              server/Dockerfile)
+                echo "Skipping protected file: $file"
+                ;;
+              *)
+                echo "Copying $file from dev"
+                git checkout origin/dev -- "$file"
+                ;;
+            esac
+          done
 
-    - name: Stage all changes
-      run: git add .
+      - name: Check status and diff
+        run: |
+          git status
+          git diff --stat
 
-    - name: Commit and Push changes to staging (with empty commit fallback)
-      run: |
-        if [[ -n $(git status --porcelain) ]]; then
-          git commit -m "Merged changed files from dev to staging, excluding protected configs"
-        else
-          echo "No file changes – creating empty commit to trigger CI/CD"
-          git commit --allow-empty -m "Trigger CI/CD on staging (no file changes)"
-        fi
+      - name: Stage all changes
+        run: git add .
 
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-        git push origin staging
+      - name: Commit and Push changes to staging
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+            git commit -m "Merged changed files from dev to staging, excluding protected configs"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            git push origin staging
+          else
+            echo "No changes to commit"
+          fi
