@@ -7,19 +7,13 @@ on:
       - completed
   push:
     branches:
-      - staging
-  pull_request:
-    branches:
       - staging 
 
 jobs:
   build-and-deploy:
     name: Build and Deploy to Staging
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' || 
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}  # Tylko w przypadku sukcesu poprzedniego workflow lub bezpośredniego pushu
 
     steps:
       - name: Checkout code
@@ -70,8 +64,3 @@ jobs:
           kubectl delete pod server -n staging || true
           kubectl delete pod cloudsql-proxy -n staging || true
           kubectl apply -f k8s/overlays/staging
-
-      - name: Debugging - check event and git status
-        run: |
-          echo "Event: ${{ toJson(github.event) }}"
-          git status
