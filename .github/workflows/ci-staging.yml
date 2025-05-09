@@ -1,25 +1,14 @@
 name: CI/CD
 
 on:
-  workflow_run:
-    workflows: ["CI Merge to Staging"]
-    types:
-      - completed
   push:
     branches:
       - staging
-  pull_request:
-    branches:
-      - staging 
 
 jobs:
   build-and-deploy:
     name: Build and Deploy to Staging
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' || 
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: Checkout code
@@ -70,8 +59,3 @@ jobs:
           kubectl delete pod server -n staging || true
           kubectl delete pod cloudsql-proxy -n staging || true
           kubectl apply -f k8s/overlays/staging
-
-      - name: Debugging - check event and git status
-        run: |
-          echo "Event: ${{ toJson(github.event) }}"
-          git status
