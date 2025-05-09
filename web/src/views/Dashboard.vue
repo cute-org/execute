@@ -38,30 +38,31 @@
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="toDoTasks.length" class="">
-                  <div 
-                  v-for = "(item, index) in toDoTasks"
-                  :key = "index"
-                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
-                  >
-                  
-                    <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
-                            <button @click="openTaskSettings(item, 'todo', index)
-                            ">
-
+                <draggable 
+                  v-model="toDoTasks"
+                  group="tasks"
+                  item-key="id"
+                  class="min-h-24"
+                  data-step="1"
+                  @change="(event) => onDragChange(event, 1)">
+                    <template #item="{element: item, index}">
+                      <div class="bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between cursor-move">
+                        <div class="flex items-center">
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3 cursor-pointer" @click="toggleCompletion(item)"></div>
+                            <button @click="openTaskSettings(item, 'todo', index)">
                           <!-- Elements inside  -->
-                              <div class="text-left">
-                                  <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
-                                  </div>
-                              </button>
-                        </div>
-                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                        <div class="text-left">
+                            <div class="text-xl">{{ item.name.trim() }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
+                            </div>
+                        </button>
+                      </div>
+                      <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
-                </div>
+                  </template>
                   <!-- No tasks yet  -->
-                <div v-else class="">No tasks yet. Add one</div>
+                   <div v-if="!toDoTasks || toDoTasks.length === 0" class="">No tasks yet. Add one</div>
+                </draggable>
             <!-- Add task button -->
             <div>
               <button class="flex items-center text-white" @click="openModal('todo')">
@@ -82,29 +83,33 @@
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="inProgressTasks.length" class="">
-                  <div 
-                  v-for = "(item, index) in inProgressTasks"
-                  :key = "index"
-                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
-                  >
-                  <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
-                            <button @click="openTaskSettings(item, 'todo', index)
-                            ">
-
+                <draggable 
+                  v-model="inProgressTasks"
+                  group="tasks"
+                  item-key="id"
+                  class="min-h-24"
+                  data-step="2"
+                  @change="(event) => onDragChange(event, 2)">
+                  
+                    <template #item="{element: item, index}">
+                        <div class="bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between cursor-move">
+                        <div class="flex items-center">
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3 cursor-pointer" @click="toggleCompletion(item)"></div>
+                            <button @click="openTaskSettings(item, 'inProgress', index)">
                           <!-- Elements inside  -->
-                              <div class="text-left">
-                                  <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
-                                  </div>
-                              </button>
-                        </div>
-                        <span class="text-white text-sm">{{ item.points || '0'}} pkt</span>
+                        <div class="text-left">
+                            <div class="text-xl">{{ item.name.trim() }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
+                            </div>
+                        </button>
+                      </div>
+                      <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
-                </div>
+                  </template>
+
                   <!-- No tasks yet  -->
-                <div v-else class="">No tasks yet. Add one</div>
+                <div v-if="inProgressTasks.length == 0" class="">No tasks yet. Add one</div>
+                </draggable>
 
             <!-- Add task button -->
             <div>
@@ -126,28 +131,33 @@
                 </div>
 
                 <!-- Adding tasks design and logic  -->
-                <div v-if="completedTasks.length" class="">
-                  <div 
-                  v-for = "(item, index) in completedTasks"
-                  :key = "index"
-                  class = "bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between"
-                  >
-                  <div class="flex items-center">
-                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3" @click="toggleCompletion(item)"></div>
-                            <button @click="openTaskSettings(item, 'todo', index)
-                            ">
+                <draggable 
+                  v-model="completedTasks"
+                  group="tasks"
+                  item-key="id"
+                  class="min-h-24"
+                  data-step="3"
+                  @change="(event) => onDragChange(event, 3)">
+                  
+                    <template #item="{element: item, index}">
+                        <div class="bg-fillingInfo rounded-2xl my-2 p-2 flex items-center justify-between cursor-move">
+                        <div class="flex items-center">
+                            <div :class="{'bg-green-500': item.completed, 'bg-gray-500': !item.completed}" class="w-4 h-4 rounded-full mr-3 cursor-pointer" @click="toggleCompletion(item)"></div>
+                            <button @click="openTaskSettings(item, 'completed', index)">
                           <!-- Elements inside  -->
-                              <div class="text-left">
-                                  <div class="text-xl">{{ item.name.trim() }}</div>
-                                  <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
-                                </div>
-                            </button>
-                        </div>
-                        <span class="text-white text-sm">{{ item.points }}pkt</span>
+                        <div class="text-left">
+                            <div class="text-xl">{{ item.name.trim() }}</div>
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
+                            </div>
+                        </button>
+                      </div>
+                      <span class="text-white text-sm">{{ item.points }}pkt</span>
                     </div>
-                </div>
+                  </template>
+
                   <!-- No tasks yet  -->
-                <div v-else class="">No tasks yet. Add one</div>
+                <div v-if="completedTasks.length == 0 " class="">No tasks yet. Add one</div>
+                </draggable>
 
             <!-- Add task button -->
             <div>
@@ -234,11 +244,14 @@
     import { useRouter } from 'vue-router'
     import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
     import { onMounted, ref } from 'vue';
+    import draggable from 'vuedraggable';
     import NavigationBar from './NavigationBar.vue'
     import SettingsDialog from './PresetsDialogs/SettingsDialog.vue'
     import InfoDialog from './PresetsDialogs/InfoDialog.vue'
     import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
     import { toggleCompletion } from './PresetsScripts/taskCompletion';
+    import { updateTaskStep, onDragChange } from './PresetsScripts/onDragChange';
+    
 
     const router = useRouter()
     //Navigation
@@ -274,6 +287,14 @@
     function openModal(listType: string) {
       activeTaskList.value = listType
       isModalOpen.value = true
+      task.value = {
+      name: '',
+      description: '',
+      points: 0,
+      dueDate: '',
+      completed: false,
+      id: undefined
+    }
     }
     
     function closeModal() {
@@ -287,6 +308,7 @@
       points: number,
       dueDate: string,
       completed: boolean,
+      step?: number,
     }
     
     const task = ref<TaskItem>({
@@ -310,7 +332,12 @@
 
 
     async function fetchTasks() {
-      try {
+      try { 
+      //clearing arrays
+      toDoTasks.value = []
+      inProgressTasks.value = []
+      completedTasks.value = []
+      
         const response = await fetch('http://localhost:8437/api/v1/task', {
           method: 'GET',
           headers: {
@@ -321,7 +348,8 @@
         if (response.ok) {
           const tasks = await response.json()
 
-          tasks.forEach((task: any) => {
+          if (Array.isArray(tasks)) {
+             tasks.forEach((task: any) => {
             const taskItem: TaskItem = {
               id: task.id,
               name: task.name,
@@ -329,6 +357,7 @@
               points: task.pointsValue,
               dueDate: task.dueDate,
               completed: task.completed || false,
+              step: task.step,
             }
               if (task.step === 1) {
               toDoTasks.value.push(taskItem)
@@ -338,6 +367,7 @@
               completedTasks.value.push(taskItem)
             }
           })
+          }
         }
       } catch (error) {
         console.error('Fetching tasks failed:', error)
@@ -385,16 +415,8 @@
             id: result.id 
           };
           
-      // Adding to specific list
-      if (activeTaskList.value == 'todo') {
-        toDoTasks.value.push({...task.value})
-      } else if (activeTaskList.value == 'inProgress') {
-        inProgressTasks.value.push({...task.value})
-      } else if (activeTaskList.value == 'completed') {
-        completedTasks.value.push({...task.value})
-      }
-      fetchTeamInfo();
-      window.location.reload();
+      await fetchTasks();
+      await fetchTeamInfo();
     }
       console.log("Load to server:", load)
       closeModal()
