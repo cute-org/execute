@@ -173,11 +173,16 @@ import InfoDialog from './PresetsDialogs/InfoDialog.vue'
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-        })
+        });
         const data = await response.json()
-        tasks.value = data
+        if (Array.isArray(data)) {
+          tasks.value = data;
+        } else {
+          tasks.value = [];
+        }
       } catch (error) {
-        console.error('Fetching tasks failed:', error)
+        console.error('Fetching tasks failed:', error);
+        tasks.value = [];
       }
     })
     //show per dueDate
