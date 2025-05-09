@@ -10,7 +10,8 @@
     "@headlessui/vue": "^1.7.23",
     "date-fns": "^4.1.0",
     "vue": "^3.4.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

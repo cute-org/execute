@@ -439,42 +439,4 @@
       fetchTasks()
       fetchTeamInfo()
     })
-
-    import { VueDraggable } from 'vue-draggable-next';
-  
-  // Existing code...
-  
-  // Function to handle task movement between columns
-  async function onDragChange(event, newStepId) {
-    // Check if this is an item being added to this list
-    if (event.added) {
-      const task = event.added.element;
-      
-      // Update the task's step on the server
-      try {
-        const response = await fetch(`http://localhost:8437/api/v1/task/${task.id}/step`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            step: newStepId
-          })
-        });
-        
-        if (!response.ok) {
-          // If server update fails, refresh all tasks to restore the original state
-          console.error(`Failed to update task step: ${response.status}`);
-          await fetchTasks();
-        } else {
-          // Update was successful, refresh team points
-          fetchTeamInfo();
-        }
-      } catch (error) {
-        console.error('Error updating task step:', error);
-        await fetchTasks(); // Restore original state
-      }
-    }
-  }
 </script>
