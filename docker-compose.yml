@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  backend:
+  server:
     build: ./server
     container_name: backend
     ports:
@@ -17,7 +17,7 @@ services:
       - DB_SSLMODE=disable
     restart: on-failure
     
-  frontend:
+  web:
     build: ./web
     container_name: frontend
     ports:
