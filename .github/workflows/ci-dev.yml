@@ -28,7 +28,6 @@ jobs:
 
     - name: Copy only the changed files from dev to staging (excluding protected config files)
       run: |
-        # Skopiuj pliki z web/, z wyjątkiem strzeżonych
         git diff --name-only origin/staging..origin/dev -- web/ | while read file; do
           case "$file" in
             web/Dockerfile|web/vite.config.ts|web/nginx.conf)
@@ -41,7 +40,6 @@ jobs:
           esac
         done
 
-        # Skopiuj pliki z server/, z wyjątkiem strzeżonych
         git diff --name-only origin/staging..origin/dev -- server/ | while read file; do
           case "$file" in
             server/Dockerfile)
