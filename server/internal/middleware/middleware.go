@@ -12,7 +12,7 @@ import (
 )
 
 // 60 requests for 30 minutes
-var limiterStore = NewIPRateLimiter(60.0/1800, 60)
+var limiterStore = NewIPRateLimiter(240.0/1800, 240)
 
 // IPRateLimiter implements a simple per-IP rate limiter
 type IPRateLimiter struct {
