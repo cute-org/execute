@@ -1,9 +1,8 @@
 import { fetchTeamInfo } from "./GroupInfo";
-const API_BASE_URL = 'http://localhost:8437/api/v1';
 
 export async function handleLeaveGroup(onSuccess= () => {}){
     try {
-        const response = await fetch(`${API_BASE_URL}/group/leave`, {
+        const response = await fetch(`api/v1/group/leave`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
