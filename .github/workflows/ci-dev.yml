@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        token: ${{ secrets.PERSONAL_TOKEN }}
         persist-credentials: false
 
     - name: Set up Git
@@ -67,7 +67,7 @@ jobs:
       run: |
         if [[ $(git status --porcelain) ]]; then
           git commit -m "Merged changed files from dev to staging, excluding protected configs"
-          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin staging
         else
           echo "No changes to commit"
