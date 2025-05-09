@@ -23,7 +23,7 @@
           <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
         </div>
         <!-- Points placeholder -->
-        <div class="ml-1 text-[10px] text-white-300 font-adlam">{{ teamData.points_score || 'No points yet' }} </div>
+        <div class="ml-1 text-[10px] text-white-300 font-adlam">{{ teamData.points || 'No points yet' }} </div>
       </div>
        
       <!-- Main content area -->

@@ -1,54 +1,29 @@
-import { el } from "date-fns/locale";
 import { fetchTeamInfo } from "./GroupInfo";
 
+
 export async function onDragChange(event, newStepId) {
-    if (event.added) {
-        const task = event.added.element;
-        let action;
-        
-        const currentStep = task.step || newStepId;
+    //if no tasks - exit
+    if (!event.added) return;
+    //what task was dropped
+    const task = event.added.element;
+    //Current task step
+    const currentStep = task.step;
+    //If task is not moved - exit 
+    if (currentStep === newStepId) return;
+    //Calculate step
+    const stepChange = newStepId - currentStep;
+    //Forward / Backwards
+    const action = stepChange > 0 ? "+1" : "-1";
 
-        //todo - inprogress
-        if (currentStep == 1 && newStepId == 2) {
-            action = "+1"
-        }
-
-        //inprogress - completed
-        else if (currentStep == 2 && newStepId == 3) {
-            action = "+1"
-        }
-
-        //inprogress - todo
-        else if (currentStep == 2 && newStepId == 1) {
-            action = "-1"
-        }
-
-        //completed - inprogress
-        else if (currentStep == 3 && newStepId == 2) {
-            action = "-1"
-        }
-
-
-        //todo - completed
-        else if (currentStep == 1 && newStepId == 3) {
-            await updateTaskStep(task.id, "+1");
-            await updateTaskStep(task.id, "+1");
-            return;
-        }
-        //completed - todo
-        else if (currentStep == 3 && newStepId == 1) {
-            await updateTaskStep(task.id, "-1");
-            await updateTaskStep(task.id, "-1");
-            return;
-        }
-        //samecolumn
-        else {
-            return;
-        }
-
-        await updateTaskStep(task.id, action);
+    //Loop number of steps to move
+    for (let i = 0; i < Math.abs(stepChange); i++) {
+        const success = await updateTaskStep(task.id, action); //Move task call updateTaskStep
+        if (!success) break; //If failed, stop 
+        task.step += action === "+1" ? 1 : -1; //Update local after each update
     }
 }
+
+
 
 export async function updateTaskStep(taskId, action) {
     try {
