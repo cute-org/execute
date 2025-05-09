@@ -138,7 +138,7 @@ const updateUserAvatar = (newUserAvatar) => {
 }
 onMounted(async () => {
   try {
-    const userResponse = await fetch('http://localhost:8437/api/v1/user/current', {
+    const userResponse = await fetch('api/v1/user/current', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -149,7 +149,7 @@ onMounted(async () => {
     if (userResponse.ok) {
       userData.value = await userResponse.json()
 
-      const avatarResponse = await fetch(`http://localhost:8437/api/v1/avatar?id=${userData.value.id}`, {
+      const avatarResponse = await fetch(`api/v1/avatar?id=${userData.value.id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

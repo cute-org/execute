@@ -76,7 +76,7 @@
   const newMeetingTime = ref('')
  
   
-  const API_BASE_URL = 'http://localhost:8437/api/v1';
+  const API_BASE_URL = 'api/v1';
   //  prop changes
   watch(() => props.show, (newVal) => {
     isOpen.value = newVal;
@@ -99,7 +99,7 @@
   const handleMeetingSchedule = async () => {
     try {
         const formattedTime = new Date(newMeetingTime.value).toISOString();
-        const response = await fetch(`${API_BASE_URL}/group/meeting`, {
+        const response = await fetch(`api/v1/group/meeting`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
