@@ -179,8 +179,6 @@ const avatarInput = ref(null)
 const avatarBase64 = ref(null)
 const avatarPreview = ref(null)
 
-const API_BASE_URL = 'http://localhost:8437/api/v1'
-
 // Prop changes
 watch(() => props.show, (newVal) => {
   isOpen.value = newVal
@@ -252,7 +250,7 @@ const handleSubmit = async () => {
     }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/user`, {
+    const response = await fetch(`api/v1/user`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

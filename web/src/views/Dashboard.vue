@@ -339,7 +339,7 @@
       inProgressTasks.value = []
       completedTasks.value = []
       
-        const response = await fetch('http://localhost:8437/api/v1/task', {
+        const response = await fetch('api/v1/task', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -399,7 +399,7 @@
       
 
     try {
-        const response = await fetch('http://localhost:8437/api/v1/task', {
+        const response = await fetch('api/v1/task', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

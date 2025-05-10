@@ -12,7 +12,7 @@ export const updateTeamData = (newTeamData) => {
   
 export async function fetchTeamInfo() {
   try {
-    const response = await fetch('http://localhost:8437/api/v1/group/info', {
+    const response = await fetch('api/v1/group/info', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

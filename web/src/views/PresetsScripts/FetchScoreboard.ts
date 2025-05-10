@@ -8,7 +8,7 @@ export const updateTeamData = (newTeamsData) => {
   
 export async function fetchScoreboardInfo() {
   try {
-    const response = await fetch('http://localhost:8437/api/v1/scoreboard', {
+    const response = await fetch('api/v1/scoreboard', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
