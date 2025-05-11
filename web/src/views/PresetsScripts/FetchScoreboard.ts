@@ -18,12 +18,19 @@ export async function fetchScoreboardInfo() {
     
     if (response.ok) {
       const data = await response.json();
-      teamsData.value = data;
-      console.log('Fetched scoreboard teams:', teamsData.value)
+      console.log('Fetched scoreboard teams:', teamsData.value);
+
+      if (data === null || !Array.isArray(data)) {
+        teamsData.value = [];
+      } else {
+        teamsData.value = data;
+      }
     } else {
       console.error('Error fetching scoreboard info:', response.status);
+      teamsData.value = [];
     }
   } catch (error) {
     console.error('Failed to fetch scoreboard info', error);
+    teamsData.value = [];
   }
 }
