@@ -1,6 +1,6 @@
 export async function deleteTask(taskId) {
   try {
-    const response = await fetch('http://localhost:8437/api/v1/task', {
+    const response = await fetch('api/v1/task', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

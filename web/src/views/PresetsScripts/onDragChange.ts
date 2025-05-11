@@ -27,7 +27,7 @@ export async function onDragChange(event, newStepId) {
 
 export async function updateTaskStep(taskId, action) {
     try {
-        const response = await fetch('http://localhost:8437/api/v1/task', {
+        const response = await fetch('api/v1/task', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
