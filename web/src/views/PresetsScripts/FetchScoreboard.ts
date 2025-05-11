@@ -3,7 +3,11 @@ import { ref } from 'vue'
 export const teamsData = ref([])
 
 export const updateTeamData = (newTeamsData) => {
-    teamsData.value = newTeamsData
+    if (newTeamsData && Array.isArray(newTeamsData)) {
+      teamsData.value = newTeamsData
+    } else {
+      teamsData.value = [];
+    }
   }
   
 export async function fetchScoreboardInfo() {
