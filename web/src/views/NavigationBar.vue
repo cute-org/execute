@@ -3,12 +3,10 @@
 <div class="w-16 h-full bg-navBar flex flex-col border-r border-gray-800">
     <!-- Back button -->
     <div class="h-28 w-16 flex items-center justify-center border-b border-white-800">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
+      <img src="/icon_1.png" alt="" class="h-10 w-10 object-contain" />
     </div>
     
-    <!-- Menu buttons -->
+      <!-- Menu buttons -->
       <button @click = "$emit('navigate', 'dashboard')" :class="{ 'bg-activeWindowNavBar': activeSection === 'dashboard' }">
          <div class="h-16 w-16 flex items-center justify-center border-b border-white-800">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

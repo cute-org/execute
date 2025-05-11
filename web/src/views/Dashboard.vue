@@ -19,11 +19,15 @@
       
       <!-- Team info section -->
       <div class="px-16 py-6">
-        <div class="flex items-center">
+        <div class="flex items-center space-x-4">
           <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
-        </div>
-        <!-- Points placeholder -->
-        <div class="ml-1 text-[10px] text-white-300 font-adlam">{{ teamData.points || 'No points yet' }} </div>
+           <!-- Points -->
+          <div class="flex space-x-3">
+            <div class="ml-1 text-[16px] text-white-300 font-adlam">Points earned: {{ teamData.pointsScore || 'No points earned yet' }} </div>
+            
+            <div class="ml-2 text-[16px] text-white-300 font-adlam">Points left: {{ teamData.points || 'No points yet' }} </div>
+          </div>
+        </div>        
       </div>
        
       <!-- Main content area -->

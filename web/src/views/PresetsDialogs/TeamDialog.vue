@@ -208,8 +208,24 @@ const leaveGroup = () => {
               name: newGroupName.value
           }),
       });
-    closeDialog()
-    
+
+      const data = await response.json();
+
+      const joinCode = data.code;
+
+      const joinResponse = await fetch(`api/v1/group/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          code: joinCode,
+        }),
+      });
+      await fetchTeamInfo();
+      closeDialog()
+      window.location.reload();
   } catch (error) { 
     error.value = `Connection error: ${error.message || 'Unknown error'}`;
     console.error('Creating group error:', error);
