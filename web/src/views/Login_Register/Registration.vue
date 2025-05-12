@@ -9,6 +9,7 @@
           placeholder=" Login..."
           class="w-64 px-4 py-2 rounded text-black focus:outline-none"
           v-model="login"
+          @focus="activeGif = 'login'"
         />
         <p v-if="loginError" class="text-error text-sm">{{ loginError }}</p>
       </div>
@@ -19,6 +20,7 @@
           placeholder="Enter Password..."
           class="w-64 px-4 py-2 rounded text-black focus:outline-none"
           v-model="password"
+          @focus="activeGif = 'password'"
         />
         <p v-if="passwordError" class="text-error text-sm">{{ passwordError }}</p>
       </div>
@@ -29,6 +31,7 @@
           placeholder="Please repeat password..."
           class="w-64 px-4 py-2 rounded text-black focus:outline-none"
           v-model="rePassword"
+          @focus="activeGif = 'password'"
         />
         <p v-if="rePasswordError" class="text-error text-sm">{{ rePasswordError }}</p>
       </div>
@@ -45,6 +48,24 @@
       </div>
     </div>
   </div>
+  <!-- Mascot section -->
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+      <img
+        v-if="activeGif === null"
+        src="/Bunny/standing.png"
+        class="mx-auto w-64"
+      />
+      <img
+        v-if="activeGif === 'login'"
+        src="/Bunny/loginGif.gif"
+        class="mx-auto w-64"
+      />
+      <img
+        v-if="activeGif === 'password'"
+        src="/Bunny/passwordGif.gif"
+        class="mx-auto w-64"
+      />
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -105,4 +126,5 @@ const registerUser = async () => {
   }
 }
 
+const activeGif = ref<'login' | 'password' | 'register' | null>(null);
 </script>

@@ -12,6 +12,7 @@
             placeholder="Enter text..."
             class="w-64 px-4 py-2 rounded text-black focus:outline-none"
             v-model= "login"
+            @focus="activeGif = 'login'"
           />
           <p v-if="loginError" class = "text-error text-sm">{{ loginError }}</p>
           
@@ -24,6 +25,7 @@
             placeholder="Enter text..."
             class="w-64 px-4 py-2 rounded text-black focus:outline-none"
             v-model = "password"
+            @focus="activeGif = 'password'"
           />
           <p v-if="passwordError" class = "text-error text-sm">{{  passwordError }}</p>
         </div>
@@ -47,6 +49,23 @@
           <p v-if="loggingSuccess" class = "text-accepted text-sm">{{ loggingSuccess }}</p>
         </div>
       </div>
+    </div>
+    <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+      <img
+        v-if="activeGif === null"
+        src="/Bunny/standing.png"
+        class="mx-auto w-64"
+      />
+      <img
+        v-if="activeGif === 'login'"
+        src="/Bunny/loginGif.gif"
+        class="mx-auto w-64"
+      />
+      <img
+        v-if="activeGif === 'password'"
+        src="/Bunny/passwordGif.gif"
+        class="mx-auto w-64"
+      />
     </div>
   </template>
 
@@ -124,4 +143,8 @@
     console.error('Logging error:', error);
     }
   }
+
+  //Mascot section
+  const activeGif = ref<'login' | 'password' | 'register' | null>(null);
+
 </script>

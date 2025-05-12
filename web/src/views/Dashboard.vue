@@ -235,9 +235,35 @@
     </div>
   </div>
 </div>
-
+  <!-- Mascot section -->
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+      <img
+        v-if="activeGif === null"
+        src="/Bunny/standing.png"
+        class="mx-auto w-64"
+        :key="`standing-${gifTimestamp}`"
+      />
+      <img
+        v-if="activeGif === 'task'"
+        src="/Bunny/task.gif"
+        class="mx-auto w-64"
+        :key="`task-${gifTimestamp}`"
+        />
+      <img
+        v-if="activeGif === 'settingsUp'"
+        src="/Bunny/settingsUp.gif"
+        class="mx-auto w-64"
+        :key="`settingsUp-${gifTimestamp}`"
+      />
+      <img
+        v-if="activeGif === 'settingsDown'"
+        src="/Bunny/settingsDown.gif"
+        class="mx-auto w-64"
+        :key="`settingsDown-${gifTimestamp}`"
+      />
+  </div>
     <!-- Dialog settings & design -->
-    <SettingsDialog v-model:show="openSettings"  @navigate="navigateTo"/>
+    <SettingsDialog v-model:show="openSettings"  @navigate="navigateTo" @close="() => { openSettings = false; activeGif = 'settingsDown'; gifTimestamp = Date.now()}"/>
     <!-- Info Dialog -->
     <InfoDialog v-model:show="openInfo" />
 </template>
@@ -261,24 +287,36 @@
     const router = useRouter()
     //Navigation
     const navigateTo = (section) => {
-  if (section === 'dashboard') {
-    router.push('/dashboard')
-  } else if (section === 'teamsInfo') {
-    router.push('/teamsInfo')
-  } else if (section === 'userInfo') {
-    router.push('/userInfo')
-  } else if (section === 'calendar') {
-    router.push('/calendar')
-  } else if (section === 'logout') {
-    router.push('/')
-  }
-}
+      gifTimestamp.value = Date.now()
+      activeGif.value = null
+      if (section === 'dashboard') {
+        router.push('/dashboard')
+      } else if (section === 'teamsInfo') {
+        router.push('/teamsInfo')
+      } else if (section === 'userInfo') {
+        router.push('/userInfo')
+      } else if (section === 'calendar') {
+        router.push('/calendar')
+      } else if (section === 'logout') {
+        router.push('/')
+      }
+    }
 
     const openSettings = ref(false)
     const openInfo = ref(false)
-
+    
+    const gifTimestamp = ref(Date.now())
+    
     const toggleSettings = () => {
       openSettings.value = !openSettings.value
+
+      if (openSettings.value) {
+        activeGif.value = 'settingsUp'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = 'settingsDown'
+        gifTimestamp.value = Date.now()
+      }
     }
 
     const toggleInfo = () => {
@@ -293,19 +331,21 @@
       activeTaskList.value = listType
       isModalOpen.value = true
       task.value = {
-      name: '',
-      description: '',
-      points: 0,
-      dueDate: '',
-      completed: false,
-      id: undefined
-    }
+        name: '',
+        description: '',
+        points: 0,
+        dueDate: '',
+        completed: false,
+        id: undefined
+      }
+      activeGif.value = 'task'
     }
     
     function closeModal() {
       isModalOpen.value = false
+      activeGif.value = null
     }
-    
+
     interface TaskItem {
       id?: number,
       name: string,
@@ -448,6 +488,7 @@
     
     function closeTaskSettings() {
       isTaskSettingOpen.value = false
+      activeGif.value = null
     }
 
     async function handleTaskDeletion() {
@@ -474,6 +515,9 @@
         closeTaskSettings();
       }
     }
+
+    //Mascot
+    const activeGif = ref<'task' | 'settingsUp' | 'settingsDown' | null>(null);
 
     onMounted(() => {
       fetchTasks()

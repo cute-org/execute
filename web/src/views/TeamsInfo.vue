@@ -70,7 +70,7 @@
           </div>
         <div v-if="teamsData.length > 0">
           
-            <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+            <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl mb-1 px-4 py-3 flex items-center space-x-4">
               <div class="flex justify-between w-full text-white text-sm">
                 <span>{{ team.name }}</span>
                 <span class="text-right">{{ team.points_score }}</span>
