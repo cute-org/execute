@@ -151,7 +151,7 @@
                           <!-- Elements inside  -->
                         <div class="text-left">
                             <div class="text-xl">{{ item.name.trim() }}</div>
-                            <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div> <!-- Show only when it's provided -->
+                            <div v-if="item.dueDate" class="text-xs">Date: {{ formatDate(item.dueDate) }}</div>
                             </div>
                         </button>
                       </div>
@@ -423,6 +423,11 @@
     async function saveTask() {
       if (!task.value.name.trim()) {
         alert('Task name is required')
+        return
+      }
+
+      if (!task.value.dueDate.trim()) {
+        alert('Due date is required')
         return
       }
       

@@ -27,37 +27,39 @@
         </div>
       </div>
       <!-- Members, meeting, scoreboard -->
+      
+     <div class="grid grid-cols-1 lg:grid-cols-3 items-start w-full px-8 py-16 bg-black">
       <!-- Members section -->
-     <div class="flex flex-col items-center lg:flex-row lg:justify-center w-full px-4 bg-black items-start">
-      <div class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
+      <div class="space-y-2 m-16 overflow-y-auto  w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
         <!-- Headline -->
         <div class="flex justify-center pb-8">
           <h1 class="text-white text-3xl font-bold">Members</h1>
         </div>
 
         <!-- Members -->
-        <div v-if="usersData.length > 0" class="space-y-2">
-          <div v-for="user in usersData" :key="user.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4" >
-            <div class="w-6 h-5 rounded-full bg-purple-50"></div>
-            <div class="flex justify-between w-full text-white text-sm">
-              <span> {{ user.display_name || user.username }} </span>
-              <span class="text-right"> {{ user.role }} </span>
+        <div class="max-h-64 overflow-y-auto pr-1">
+          <div v-if="usersData.length > 0" class="space-y-2">
+            <div v-for="user in usersData" :key="user.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4" >
+              <div class="w-6 h-5 rounded-full bg-purple-50"></div>
+              <div class="flex justify-between w-full text-white text-sm">
+                <span> {{ user.display_name || user.username }} </span>
+                <span class="text-right"> {{ user.role }} </span>
+              </div>
             </div>
+          </div> 
+            <div v-else class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+              <div class="flex justify-center w-full text-white text-sm">
+                <span>Loading members...</span>
+              </div>
           </div>
-        </div> 
-          <div v-else class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
-            <div class="flex justify-center w-full text-white text-sm">
-              <span>Loading members...</span>
-            </div>
         </div>
       </div>
       
       <!-- Next meeting section -->
       <div @click="openMeetingDialog" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative hover:opacity-90 transition-opacity">
-        <div class="flex justify-center pb-4">
+        <div class="flex justify-center flex-grow items-center pb-4">
           <h1 class="text-white text-4xl font-bold">Next meeting:</h1>
         </div>
-        <!-- Placeholder date -->
         <div class="flex justify-center">
           <h1 class="text-white text-3xl">{{ teamData.meeting }}</h1>
         </div>
@@ -68,8 +70,8 @@
          <div class="flex justify-center pb-8">
             <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
           </div>
-        <div v-if="teamsData.length > 0">
-          
+        <div class="max-h-64 overflow-y-auto pr-1">
+          <div v-if="teamsData.length > 0">
             <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl mb-1 px-4 py-3 flex items-center space-x-4">
               <div class="flex justify-between w-full text-white text-sm">
                 <span>{{ team.name }}</span>
@@ -85,6 +87,7 @@
             </div>
           </div>
         </div>
+      </div>
     </div>
    </div>
  </div>
