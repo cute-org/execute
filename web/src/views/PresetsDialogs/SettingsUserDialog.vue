@@ -249,6 +249,16 @@ const handleSubmit = async () => {
       return
     }
 
+    //made so that birthdate is not required everytime
+  const load = {
+      display_name: displayname.value,
+      password: password.value,
+      role: role.value,
+    }
+    if (phone.value) load.phone = phone.value
+    if (birthdate.value) load.birth_date = birthdate.value
+    if (avatarBase64.value) load.avatar = avatarBase64.value
+
   try {
     const response = await fetch(`api/v1/user`, {
       method: 'PUT',
@@ -256,14 +266,7 @@ const handleSubmit = async () => {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({
-        display_name: displayname.value,
-        birth_date: birthdate.value,
-        phone: phone.value,
-        password: password.value,
-        role: role.value,
-        avatar: avatarBase64.value,
-      }),
+      body: JSON.stringify(load),
     })
     
 
@@ -282,7 +285,7 @@ const handleSubmit = async () => {
     }
     
     //Successful update
-  success.value = 'Settings updated successfully'
+  success.value = 'User info updated successfully'
   setTimeout(() => window.location.reload(), 1500) //reload page
 
   } finally {
