@@ -139,7 +139,7 @@ func InitDB() {
 	}
 
 	createEventTasks := `
-    CREATE TABLE task_events (
+    CREATE TABLE IF NOT EXISTS task_events (
         id SERIAL PRIMARY KEY,
         task_id INT NOT NULL,
         user_id INT NOT NULL,
