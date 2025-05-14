@@ -19,11 +19,15 @@
       
       <!-- Team info section -->
       <div class="px-16 py-6">
-        <div class="flex items-center">
+        <div class="flex items-center space-x-4">
           <h2 class="text-3xl text-white font-adlam">{{ teamData.name }}</h2>
-        </div>
-        <!-- Points placeholder -->
-        <div class="ml-1 text-[10px] text-white-300 font-adlam">{{ teamData.points || 'No points yet' }} </div>
+           <!-- Points -->
+          <div class="flex space-x-3">
+            <div class="ml-1 text-[16px] text-white-300 font-adlam">Points earned: {{ teamData.pointsScore || 'No points earned yet' }} </div>
+            
+            <div class="ml-2 text-[16px] text-white-300 font-adlam">Points left: {{ teamData.points || 'No points yet' }} </div>
+          </div>
+        </div>        
       </div>
        
       <!-- Main content area -->
@@ -226,7 +230,7 @@
     </div>
     
     <div class="flex justify-between space-x-2 mt-4">
-      <button @click="deleteTask" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500">Delete Task</button>
+      <button @click="handleTaskDeletion" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500">Delete Task</button>
       <button @click="closeTaskSettings" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Close</button>
     </div>
   </div>
@@ -251,6 +255,7 @@
     import { fetchTeamInfo, teamData } from './PresetsScripts/GroupInfo'
     import { toggleCompletion } from './PresetsScripts/taskCompletion';
     import { updateTaskStep, onDragChange } from './PresetsScripts/onDragChange';
+    import { deleteTask } from './PresetsScripts/DeleteTask';
     
 
     const router = useRouter()
@@ -445,16 +450,29 @@
       isTaskSettingOpen.value = false
     }
 
-    // Delete task
-    function deleteTask() {
-      if (selectedTaskList.value === 'todo') {
-        toDoTasks.value.splice(selectedTaskIndex.value, 1)
-      } else if (selectedTaskList.value === 'inProgress') {
-        inProgressTasks.value.splice(selectedTaskIndex.value, 1)
-      } else if (selectedTaskList.value === 'completed') {
-        completedTasks.value.splice(selectedTaskIndex.value, 1)
+    async function handleTaskDeletion() {
+      try {
+        if (!selectedTask.value || selectedTask.value.id === undefined) {
+          console.error('No valid task selected for deletion');
+          return;
+        }
+        
+        const success = await deleteTask(selectedTask.value.id); //call to the script
+        
+        if (success) {
+          console.log('Successfully deleted task');
+          //Data refresh
+          await fetchTasks();
+          await fetchTeamInfo();
+        } else {
+          console.error('Delete task failed');
+        }
+        
+        closeTaskSettings();
+      } catch (error) {
+        console.error('Error in handler:', error);
+        closeTaskSettings();
       }
-      closeTaskSettings()
     }
 
     onMounted(() => {

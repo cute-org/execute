@@ -63,23 +63,28 @@
         </div>
      </div>
      <!-- Scoreboard section -->
-     <div v-if="teamsData.length > 0" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
-      <!-- Headline -->
-      <div class="flex justify-center pb-8">
-          <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
-        </div>
-        <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
-          <div class="flex justify-between w-full text-white text-sm">
-            <span>{{ team.name }}</span>
-            <span class="text-right">{{ team.points_score }}</span>
+     <div class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
+          <!-- Headline -->
+         <div class="flex justify-center pb-8">
+            <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
+          </div>
+        <div v-if="teamsData.length > 0">
+          
+            <div v-for="team in teamsData" :key="team.id" class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+              <div class="flex justify-between w-full text-white text-sm">
+                <span>{{ team.name }}</span>
+                <span class="text-right">{{ team.points_score }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <div class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
+              <div class="flex justify-center w-full text-white text-sm">
+                <span>Loading groups...</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else class="w-full bg-fillingInfo rounded-xl px-4 py-3 flex items-center space-x-4">
-            <div class="flex justify-center w-full text-white text-sm">
-              <span>Loading members...</span>
-            </div>
-      </div>
     </div>
    </div>
  </div>

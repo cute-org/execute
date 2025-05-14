@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"execute/internal"
+	"execute/internal/dataflow"
 	"execute/internal/handlers/auth"
 	"execute/internal/handlers/user"
 )
@@ -140,6 +141,11 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to commit transaction: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	_ = dataflow.InsertTaskEvent(taskID, userID, "created", map[string]any{
+		"name":   req.Name,
+		"points": req.PointsValue,
+	})
 
 	// Fetch creator username and respond
 	var username string
@@ -274,6 +280,11 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "updated", map[string]any{
+		"name":   req.Name,
+		"points": req.PointsValue,
+	})
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, `{"message":"Task updated successfully"}`)
 }
@@ -350,6 +361,10 @@ func TaskStepHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to update step: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "step_changed", map[string]any{
+		"action": req.Action,
+	})
 
 	// Retrieve the updated step value
 	err = internal.DB.QueryRow(
@@ -484,6 +499,10 @@ func ToggleTaskCompletionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "completed", map[string]any{
+		"completed": req.Completed,
+	})
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
 		"taskId":    req.TaskID,
@@ -587,6 +606,10 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to delete task: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "deleted", map[string]any{
+		"pointsReturned": !completed,
+	})
 
 	// Commit transaction
 	if err := tx.Commit(); err != nil {
