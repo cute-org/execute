@@ -24,3 +24,7 @@ spec:
           value: "execute_db"
         - name: DB_SSLMODE
           value: "disable"
+        - name: GCP_PROJECT_ID
+          value: "pure-wall-459114-v4"
+        - name: PUBSUB_TOPIC_NAME
+          value: "execute-pubsubtobq"
