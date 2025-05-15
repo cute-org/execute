@@ -21,16 +21,16 @@
       <div class="flex justify-center w-full">
         <div 
           @click="openTeamDialog" 
-          class="space-y-2 w-full max-w-[30rem] px-6 py-4 bg-borderColor rounded-xl border-borderColor border-2 border-solid flex justify-center cursor-pointer hover:opacity-90 transition-opacity"
+          class="w-full max-w-md mx-auto mb-12 px-6 py-4 bg-borderColor rounded-xl border-borderColor border-2 border-solid flex justify-center cursor-pointer hover:opacity-90 transition-opacity"
         >
             <span class="text-6xl">{{ teamData.name }}</span> 
         </div>
       </div>
       <!-- Members, meeting, scoreboard -->
       
-     <div class="grid grid-cols-1 lg:grid-cols-3 items-start w-full px-8 py-16 bg-black">
+     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start w-full px-4 mx-auto max-w-7xl">
       <!-- Members section -->
-      <div class="space-y-2 m-16 overflow-y-auto  w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative">
+      <div class="w-full bg-infoBg rounded-xl border-borderColor border-2 border-solid p-6 flex flex-col">
         <!-- Headline -->
         <div class="flex justify-center pb-8">
           <h1 class="text-white text-3xl font-bold">Members</h1>
@@ -56,8 +56,8 @@
       </div>
       
       <!-- Next meeting section -->
-      <div @click="openMeetingDialog" class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg rounded-xl border-borderColor border-2 border-solid relative hover:opacity-90 transition-opacity">
-        <div class="flex justify-center flex-grow items-center pb-4">
+      <div @click="openMeetingDialog" class="w-full bg-infoBg rounded-xl border-borderColor border-2 border-solid p-6 flex flex-col justify-center hover:opacity-90 transition-opacity cursor-pointer">
+        <div class="flex justify-center items-center pb-4">
           <h1 class="text-white text-4xl font-bold">Next meeting:</h1>
         </div>
         <div class="flex justify-center">
@@ -65,7 +65,7 @@
         </div>
      </div>
      <!-- Scoreboard section -->
-     <div class="space-y-2 m-16 w-full max-w-md px-6 py-8 bg-infoBg bg-white-200 rounded-xl border-borderColor border-2 border-solid relative">
+     <div class="w-full bg-infoBg rounded-xl border-borderColor border-2 border-solid p-6 flex flex-col">
           <!-- Headline -->
          <div class="flex justify-center pb-8">
             <h1 class="text-white text-3xl font-bold">Scoreboard</h1>
@@ -91,11 +91,36 @@
     </div>
    </div>
  </div>
-
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden lg:block">
+        <img
+          v-if="activeGif === null"
+          src="/Bunny/teamsGif.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
+        <img
+          v-if="activeGif === 'info'"
+          src="/Bunny/infoGif.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
+        <img
+          v-if="activeGif === 'settingsUp'"
+          src="/Bunny/settingsUp.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
+        <img
+          v-if="activeGif === 'settingsDown'"
+          src="/Bunny/settingsDown.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
+    </div>
  <!-- Dialog settings & design -->
- <SettingsDialog v-model:show="openSettings" @navigate="navigateTo"/>
+ <SettingsDialog v-model:show="openSettings" @navigate="navigateTo" @close="() => { openSettings = false; activeGif = 'settingsDown'; gifTimestamp = Date.now()}"/>
  <!-- Info Dialog -->
- <InfoDialog v-model:show="openInfo" />
+ <InfoDialog v-model:show="openInfo" @close="() => { openInfo = false; activeGif = null; gifTimestamp = Date.now()}" />
  <!-- Team Dialog -->
  <TeamDialog v-model:show="showTeamDialog" />
  <!-- Meeting Dialog -->
@@ -139,12 +164,26 @@
 
 
   const toggleSettings = () => {
-    openSettings.value = !openSettings.value
-  }
+  openSettings.value = !openSettings.value
+  if (openSettings.value) {
+        activeGif.value = 'settingsUp'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = 'settingsDown'
+        gifTimestamp.value = Date.now()
+      }
+}
 
   const toggleInfo = () => {
-    openInfo.value = !openInfo.value
-  } 
+      openInfo.value = !openInfo.value
+      if (openInfo.value) {
+        activeGif.value = 'info'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = null
+        gifTimestamp.value = Date.now()
+      }
+    } 
   
   const openTeamDialog = () => {
     showTeamDialog.value = true
@@ -154,6 +193,10 @@
     showMeetingDialog.value = true
   }
   
+  //Mascot
+  const gifTimestamp = ref(Date.now())
+    const activeGif = ref<'info' | 'settingsUp' | 'settingsDown' | null>(null);
+
 
   onMounted(() => {
     fetchTeamInfo()

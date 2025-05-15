@@ -49,7 +49,7 @@
     </div>
   </div>
   <!-- Mascot section -->
-  <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden md:block">
       <img
         v-if="activeGif === null"
         src="/Bunny/standing.png"

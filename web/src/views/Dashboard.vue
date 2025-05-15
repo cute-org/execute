@@ -199,6 +199,7 @@
           <label class="block mb-1">Due Date</label>
           <input v-model="task.dueDate" type="datetime-local" class="w-full p-2 rounded-xl bg-fillingInfo border border-zinc-700" /> <!-- input type adds calendar on the right btw -->
         </div>
+        <p v-if="taskError" class = "text-error text-sm mt-1 text-center"> {{ taskError }}</p>
         <div class="flex justify-end space-x-2">
           <button @click="closeModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Cancel</button>
           <button @click="saveTask" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Save</button>
@@ -228,7 +229,6 @@
       <!-- If no date 'No due date set'-->
       <p class="text-gray-300">{{ formatDate(selectedTask?.dueDate) || 'No due date set' }}</p>
     </div>
-    
     <div class="flex justify-between space-x-2 mt-4">
       <button @click="handleTaskDeletion" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500">Delete Task</button>
       <button @click="closeTaskSettings" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500">Close</button>
@@ -236,7 +236,7 @@
   </div>
 </div>
   <!-- Mascot section -->
-  <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden lg:block">
       <img
         v-if="activeGif === null"
         src="/Bunny/standing.png"
@@ -261,11 +261,17 @@
         class="mx-auto w-64"
         :key="`settingsDown-${gifTimestamp}`"
       />
+      <img
+          v-if="activeGif === 'info'"
+          src="/Bunny/infoGif.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
   </div>
     <!-- Dialog settings & design -->
     <SettingsDialog v-model:show="openSettings"  @navigate="navigateTo" @close="() => { openSettings = false; activeGif = 'settingsDown'; gifTimestamp = Date.now()}"/>
     <!-- Info Dialog -->
-    <InfoDialog v-model:show="openInfo" />
+    <InfoDialog v-model:show="openInfo" @close="() => { openInfo = false; activeGif = null; gifTimestamp = Date.now()}" />
 </template>
 
 
@@ -301,7 +307,7 @@
         router.push('/')
       }
     }
-
+    const taskError = ref('')
     const openSettings = ref(false)
     const openInfo = ref(false)
     
@@ -321,6 +327,13 @@
 
     const toggleInfo = () => {
       openInfo.value = !openInfo.value
+      if (openInfo.value) {
+        activeGif.value = 'info'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = null
+        gifTimestamp.value = Date.now()
+      }
     } 
 
     //Adding tasks logic
@@ -422,12 +435,12 @@
 
     async function saveTask() {
       if (!task.value.name.trim()) {
-        alert('Task name is required')
+        taskError.value = 'Task name is required'
         return
       }
 
       if (!task.value.dueDate.trim()) {
-        alert('Due date is required')
+        taskError.value = 'Due date is required'
         return
       }
       
@@ -446,7 +459,7 @@
       }
 
       
-
+    taskError.value = '';
     try {
         const response = await fetch('api/v1/task', {
           method: 'POST',
@@ -467,11 +480,18 @@
           
       await fetchTasks();
       await fetchTeamInfo();
-    }
+    } if (!response.ok) {
+      //Setting errors for codes
+        if (response.status === 403) {
+          taskError.value = 'To create a task, join/create group';
+        } 
+        return;
+      }
       console.log("Load to server:", load)
       closeModal()
 
     } catch (error) {
+        taskError.value = `Connection error: ${error.message || 'Unknown error'}`;
         console.error('Request error:', error);
     }
   } 
@@ -522,7 +542,7 @@
     }
 
     //Mascot
-    const activeGif = ref<'task' | 'settingsUp' | 'settingsDown' | null>(null);
+    const activeGif = ref<'task' | 'settingsUp' | 'settingsDown' | 'info' | null>(null);
 
     onMounted(() => {
       fetchTasks()

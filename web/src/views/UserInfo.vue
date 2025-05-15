@@ -71,10 +71,10 @@
   </div>
 
   <!-- Mascot section -->
-  <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden lg:block">
       <img
         v-if="activeGif === null"
-        src="/Bunny/mirror.gif"
+        src="/Bunny/mirrorUp.gif"
         class="mx-auto w-64"
         :key="`mirror-${gifTimestamp}`"
       />
@@ -96,18 +96,25 @@
         class="mx-auto w-64"
         :key="`settingsDown-${gifTimestamp}`"
       />
+      <img
+          v-if="activeGif === 'info'"
+          src="/Bunny/infoGif.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
     </div>
 
   <!-- Dialog settings & design -->
   <SettingsDialog v-model:show="openSettings" @navigate="navigateTo" @close="() => { openSettings = false; activeGif = 'settingsDown'; gifTimestamp = Date.now()}"/>
   <!-- Info Dialog -->
-  <InfoDialog v-model:show="openInfo"/>
+  <InfoDialog v-model:show="openInfo" @close="() => { openInfo = false; activeGif = null; gifTimestamp = Date.now()}"/>
   <!-- User Settings Dialog -->
   <SettingsUserDialog 
     v-model:show="openUserSettings" 
     :userData="userData" 
     @update:userData="updateUserData"
     @update:userAvatar="updateUserAvatar"
+    @close="() => { openUserSettings = false; activeGif = null; gifTimestamp = Date.now()}"
   />
 </template>
 
@@ -158,15 +165,23 @@ const toggleSettings = () => {
 
 const toggleInfo = () => {
   openInfo.value = !openInfo.value
+  if (openInfo.value) {
+        activeGif.value = 'info'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = null
+        gifTimestamp.value = Date.now()
+      }
 }
 
 const toggleUserSettings = () => {
   openUserSettings.value = !openUserSettings.value
-  if(openUserSettings) {
+  if(openUserSettings.value) {
     activeGif.value = 'userInfo'
   } else {
     activeGif.value = null
   }
+   gifTimestamp.value = Date.now()
 }
 
 // Update userData when dialog emits changes
@@ -212,6 +227,6 @@ onMounted(async () => {
 })
 
   //Mascot
-  const activeGif = ref<'userInfo' | 'settingsUp' | 'settingsDown' | null>(null);
+  const activeGif = ref<'userInfo' | 'settingsUp' | 'settingsDown' | 'info' | null>(null);
 
 </script>

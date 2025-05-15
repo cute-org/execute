@@ -201,6 +201,7 @@ const closeDialog = () => {
   isOpen.value = false
   error.value = ""
   emit('update:show', false)
+  emit('close')
 }
 
 const handleFileChange = (event) => {

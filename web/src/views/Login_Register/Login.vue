@@ -50,7 +50,7 @@
         </div>
       </div>
     </div>
-    <div class="fixed bottom-4 right-4 pointer-events-none mt-6">
+    <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden md:block">
       <img
         v-if="activeGif === null"
         src="/Bunny/standing.png"
@@ -126,7 +126,7 @@
       if (response.status === 400) {
         loggingError.value = 'Invalid username or password';
       } else if (response.status === 401) {
-        loggingError.value = 'Missing required fields';
+        loggingError.value = 'Invalid username or password';
       } else {
         loggingError.value = `Error: ${response.status} ${response.statusText}`;
       }
