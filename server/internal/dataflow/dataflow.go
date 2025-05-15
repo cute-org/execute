@@ -13,9 +13,10 @@ import (
 )
 
 type TaskEvent struct {
-	TaskID    int `json:"task_id"`
-	UserID    int `json:"user_id"`
-	Timestamp int `json:"timestamp"`
+	TaskID    int    `json:"task_id"`
+	UserID    int    `json:"user_id"`
+	EventType string `json:"event_type"`
+	Timestamp int    `json:"timestamp"`
 }
 
 var (
@@ -48,11 +49,11 @@ func initPubSub(projectID, topicID string) error {
 	return nil
 }
 
-func InsertTaskEvent(taskID, userID int) error {
+func InsertTaskEvent(taskID, userID int, eventType string) error {
 	_, err := internal.DB.Exec(
-		`INSERT INTO task_events (task_id, user_id)
-		 VALUES ($1, $2)`,
-		taskID, userID,
+		`INSERT INTO task_events (task_id, user_id, event_type)
+		 VALUES ($1, $2, $3)`,
+		taskID, userID, eventType,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert task event: %w", err)
@@ -63,6 +64,7 @@ func InsertTaskEvent(taskID, userID int) error {
 		event := TaskEvent{
 			TaskID:    taskID,
 			UserID:    userID,
+			EventType: eventType,
 			Timestamp: int(time.Now().UTC().Unix()),
 		}
 		payload, err := json.Marshal(event)
