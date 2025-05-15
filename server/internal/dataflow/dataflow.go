@@ -13,11 +13,9 @@ import (
 )
 
 type TaskEvent struct {
-	TaskID    int            `json:"task_id"`
-	UserID    int            `json:"user_id"`
-	EventType string         `json:"event_type"`
-	Metadata  map[string]any `json:"metadata"`
-	Timestamp time.Time      `json:"timestamp"`
+	TaskID    int `json:"task_id"`
+	UserID    int `json:"user_id"`
+	Timestamp int `json:"timestamp"`
 }
 
 var (
@@ -50,17 +48,11 @@ func initPubSub(projectID, topicID string) error {
 	return nil
 }
 
-func InsertTaskEvent(taskID, userID int, eventType string, metadata map[string]any) error {
-	// Save to DB
-	metaJSON, err := json.Marshal(metadata)
-	if err != nil {
-		return fmt.Errorf("failed to encode metadata: %w", err)
-	}
-
-	_, err = internal.DB.Exec(
-		`INSERT INTO task_events (task_id, user_id, event_type, metadata)
-		 VALUES ($1, $2, $3, $4)`,
-		taskID, userID, eventType, metaJSON,
+func InsertTaskEvent(taskID, userID int) error {
+	_, err := internal.DB.Exec(
+		`INSERT INTO task_events (task_id, user_id)
+		 VALUES ($1, $2)`,
+		taskID, userID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert task event: %w", err)
@@ -71,9 +63,7 @@ func InsertTaskEvent(taskID, userID int, eventType string, metadata map[string]a
 		event := TaskEvent{
 			TaskID:    taskID,
 			UserID:    userID,
-			EventType: eventType,
-			Metadata:  metadata,
-			Timestamp: time.Now().UTC(),
+			Timestamp: int(time.Now().UTC().Unix()),
 		}
 		payload, err := json.Marshal(event)
 		if err != nil {
