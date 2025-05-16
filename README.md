@@ -33,6 +33,8 @@ Vite – Build tool
 
 ## Backend
 Go (Golang) – REST API with high performance
+[Documentation](./server/README.md)
+
 
 ## Cloud Infrastructure
 Google Cloud SQL – PostgreSQL instance for relational data
