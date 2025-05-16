@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"execute/internal"
+	"execute/internal/dataflow"
 	"execute/internal/handlers/auth"
 	"execute/internal/handlers/group"
 	"execute/internal/handlers/scoreboard"
@@ -20,6 +21,7 @@ const addr = ":8437"
 func main() {
 	internal.InitDB()
 	go auth.CleanupExpiredSessions(10 * time.Minute)
+	dataflow.InitPS()
 
 	mux := http.NewServeMux()
 

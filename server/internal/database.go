@@ -138,6 +138,16 @@ func InitDB() {
 		log.Fatal("failed to create tasks table:", err)
 	}
 
+	createEventTasks := `
+    CREATE TABLE IF NOT EXISTS task_events (
+        id SERIAL PRIMARY KEY,
+        task_id INT NOT NULL,
+        user_id INT NOT NULL
+    );`
+	if _, err := DB.Exec(createEventTasks); err != nil {
+		log.Fatal("failed to create event tasks table:", err)
+	}
+
 	// Configure the database connection pool
 	DB.SetMaxOpenConns(10)
 	DB.SetMaxIdleConns(5)
