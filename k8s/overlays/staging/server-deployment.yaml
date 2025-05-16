@@ -6,6 +6,7 @@ metadata:
   labels:
     app: server
 spec:
+  serviceAccountName: server-sa
   containers:
     - name: server
       image: europe-central2-docker.pkg.dev/pure-wall-459114-v4/docker-repo/server:latest
@@ -16,12 +17,6 @@ spec:
           value: "cloudsql-proxy"
         - name: DB_PORT
           value: "5432"
-        - name: DB_USER
-          value: "execute"
-        - name: DB_PASSWORD
-          value: "execute"
-        - name: DB_NAME
-          value: "execute_db"
         - name: DB_SSLMODE
           value: "disable"
         - name: GCP_PROJECT_ID

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: server-sa
+  namespace: staging                
+  annotations:
+    iam.gke.io/gcp-service-account: 94398713095-compute@developer.gserviceaccount.com
