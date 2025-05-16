@@ -49,6 +49,6 @@ Google Kubernetes Engine (GKE) – For scalable app deployment
 ### Steps
 - Clone the repository
 - Download a docker
-- Enter your files location (e.g. in powershell) ```cd (path}```
+- Enter your files location (e.g. in powershell) ```cd (path)```
 - Build the project ```docker-compose up --build```
 - Go to your browser and visit http://localhost:5173/
