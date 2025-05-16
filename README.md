@@ -41,3 +41,14 @@ Google Cloud Dataflow – Stream and batch processing
 
 Google Kubernetes Engine (GKE) – For scalable app deployment
 
+# 📦 Installation
+### Prerequisites
+Docker
+Docker Compose
+Google Cloud SDK (optional, for cloud deployment)
+
+- Clone the repository
+- Download a docker
+- Enter your files location (e.g. in powershell) ```cd (path}```
+- Build the project ```docker-compose up --build```
+- Go to your browser and visit http://localhost:5173/
