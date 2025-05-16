@@ -43,12 +43,10 @@ Google Kubernetes Engine (GKE) – For scalable app deployment
 
 # 📦 Installation
 ### Prerequisites
-Docker
-
-Docker Compose
-
-Google Cloud SDK (optional, for cloud deployment)
-
+- Docker
+- Docker Compose
+- Google Cloud SDK (optional, for cloud deployment)
+### Steps
 - Clone the repository
 - Download a docker
 - Enter your files location (e.g. in powershell) ```cd (path}```
