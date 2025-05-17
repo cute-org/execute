@@ -1,4 +1,8 @@
-# Team ToDo Page – University Project
+<div align="center">
+# Execute
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+</div>
+### ToDo Page  – University Project
 A collaborative ToDo web application that enables users to create and manage teams, assign tasks, and track progress via a team-based point scoreboard. Built as part of a university project by a team of 3 programmers and 2 designers, the application showcases modern full-stack development practices with scalable cloud infrastructure.
 
 # 🚀 Features
