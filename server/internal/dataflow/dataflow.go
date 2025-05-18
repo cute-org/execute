@@ -29,7 +29,8 @@ func InitPS() {
 	topicName := os.Getenv("PUBSUB_TOPIC_NAME")
 
 	if projectID == "" || topicName == "" {
-		log.Fatalf("Missing environment variables: GCP_PROJECT_ID or PUBSUB_TOPIC_NAME")
+		log.Printf("Missing environment variables: GCP_PROJECT_ID or PUBSUB_TOPIC_NAME")
+		return
 	}
 
 	err := initPubSub(projectID, topicName)
