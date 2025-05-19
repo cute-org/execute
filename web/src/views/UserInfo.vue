@@ -16,10 +16,6 @@
           <h1 class="text-5xl font-semibold text-white font-adlam">ExeCute</h1>
         </div>
       </div>
-      <!-- Points -->
-      <div class="text-white text-xs mr-5 mt-2 px-4 py-1 ml-auto bg-infoBg rounded-xl border-borderColor border-2 border-solid ">
-        <h1 class="">Points: 1280</h1>
-      </div>
      
       <div class="flex flex-col bg-black items-center justify-center pt-[2rem]">
         <div class="w-64 h-64 rounded-full flex items-center justify-center overflow-hidden mb-4">
@@ -74,16 +70,51 @@
     </div>
   </div>
 
+  <!-- Mascot section -->
+  <div class="fixed bottom-4 right-4 pointer-events-none mt-6 hidden lg:block">
+      <img
+        v-if="activeGif === null"
+        src="/Bunny/mirrorUp.gif"
+        class="mx-auto w-64"
+        :key="`mirror-${gifTimestamp}`"
+      />
+      <img
+        v-if="activeGif === 'userInfo'"
+        src="/Bunny/task.gif"
+        class="mx-auto w-64"
+        :key="`task-${gifTimestamp}`"
+      />
+      <img
+        v-if="activeGif === 'settingsUp'"
+        src="/Bunny/settingsUp.gif"
+        class="mx-auto w-64"
+        :key="`settingsUp-${gifTimestamp}`"
+      />
+      <img
+        v-if="activeGif === 'settingsDown'"
+        src="/Bunny/settingsDown.gif"
+        class="mx-auto w-64"
+        :key="`settingsDown-${gifTimestamp}`"
+      />
+      <img
+          v-if="activeGif === 'info'"
+          src="/Bunny/infoGif.gif"
+          class="mx-auto w-64"
+          :key="`mirror-${gifTimestamp}`"
+        />
+    </div>
+
   <!-- Dialog settings & design -->
-  <SettingsDialog v-model:show="openSettings" @navigate="navigateTo"/>
+  <SettingsDialog v-model:show="openSettings" @navigate="navigateTo" @close="() => { openSettings = false; activeGif = 'settingsDown'; gifTimestamp = Date.now()}"/>
   <!-- Info Dialog -->
-  <InfoDialog v-model:show="openInfo"/>
+  <InfoDialog v-model:show="openInfo" @close="() => { openInfo = false; activeGif = null; gifTimestamp = Date.now()}"/>
   <!-- User Settings Dialog -->
   <SettingsUserDialog 
     v-model:show="openUserSettings" 
     :userData="userData" 
     @update:userData="updateUserData"
     @update:userAvatar="updateUserAvatar"
+    @close="() => { openUserSettings = false; activeGif = null; gifTimestamp = Date.now()}"
   />
 </template>
 
@@ -104,6 +135,8 @@ const openUserSettings = ref(false)
 
 // Navigation using NavigationBar Preset
 const navigateTo = (section) => {
+    gifTimestamp.value = Date.now()
+    activeGif.value = null
   if (section === 'dashboard') {
     router.push('/dashboard')
   } else if (section === 'teamsInfo') {
@@ -116,17 +149,39 @@ const navigateTo = (section) => {
     router.push('/')
   }
 }
+    
+const gifTimestamp = ref(Date.now())
 
 const toggleSettings = () => {
   openSettings.value = !openSettings.value
+  if (openSettings.value) {
+        activeGif.value = 'settingsUp'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = 'settingsDown'
+        gifTimestamp.value = Date.now()
+      }
 }
 
 const toggleInfo = () => {
   openInfo.value = !openInfo.value
+  if (openInfo.value) {
+        activeGif.value = 'info'
+        gifTimestamp.value = Date.now()
+      } else {
+        activeGif.value = null
+        gifTimestamp.value = Date.now()
+      }
 }
 
 const toggleUserSettings = () => {
   openUserSettings.value = !openUserSettings.value
+  if(openUserSettings.value) {
+    activeGif.value = 'userInfo'
+  } else {
+    activeGif.value = null
+  }
+   gifTimestamp.value = Date.now()
 }
 
 // Update userData when dialog emits changes
@@ -136,6 +191,7 @@ const updateUserData = (newUserData) => {
 const updateUserAvatar = (newUserAvatar) => {
   userAvatar.value = newUserAvatar
 }
+
 onMounted(async () => {
   try {
     const userResponse = await fetch('api/v1/user/current', {
@@ -169,4 +225,8 @@ onMounted(async () => {
     console.error('Error fetching user data:', error)
   }
 })
+
+  //Mascot
+  const activeGif = ref<'userInfo' | 'settingsUp' | 'settingsDown' | 'info' | null>(null);
+
 </script>

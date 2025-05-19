@@ -1,3 +1,5 @@
+import { fetchTeamInfo } from "./GroupInfo";
+
 export async function toggleCompletion(task) {
     try {
         if (!task.id) {
@@ -21,7 +23,7 @@ export async function toggleCompletion(task) {
       if (!response.ok) {
         throw new Error(`Failed to update task completion: ${response.status}`);
       }
-  
+      await fetchTeamInfo();
       const result = await response.json();
       task.completed = result.completed;
     } catch (error) {
