@@ -11,6 +11,7 @@ export default {
         infoBg: '#100F0F',
         error: '#cc0000',
         accepted: '#33ff33',
+        descriptionDialog: '#201B1B',
       },
 
       spacing: {
