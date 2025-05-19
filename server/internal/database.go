@@ -142,7 +142,8 @@ func InitDB() {
     CREATE TABLE IF NOT EXISTS task_events (
         id SERIAL PRIMARY KEY,
         task_id INT NOT NULL,
-        user_id INT NOT NULL
+        user_id INT NOT NULL,
+        event_type TEXT NOT NULL
     );`
 	if _, err := DB.Exec(createEventTasks); err != nil {
 		log.Fatal("failed to create event tasks table:", err)

@@ -249,6 +249,7 @@ const handleJoinGroup = async () => {
         closeDialog();
     }
     closeDialog()
+    window.location.reload();
   } catch (error) {
     error.value = `Connection error: ${error.message || 'Unknown error'}`;
     console.error('Joining group error', error);

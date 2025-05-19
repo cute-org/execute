@@ -142,7 +142,8 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = dataflow.InsertTaskEvent(taskID, userID)
+	_ = dataflow.InsertTaskEvent(taskID, userID, "created")
+
 	// Fetch creator username and respond
 	var username string
 	if err := internal.DB.QueryRow(
@@ -276,7 +277,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = dataflow.InsertTaskEvent(req.TaskID, userID)
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "updated")
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, `{"message":"Task updated successfully"}`)
@@ -355,7 +356,7 @@ func TaskStepHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = dataflow.InsertTaskEvent(req.TaskID, userID)
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "step_changed")
 
 	// Retrieve the updated step value
 	err = internal.DB.QueryRow(
@@ -490,7 +491,7 @@ func ToggleTaskCompletionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = dataflow.InsertTaskEvent(req.TaskID, userID)
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "completed/incompleted")
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
@@ -596,7 +597,7 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = dataflow.InsertTaskEvent(req.TaskID, userID)
+	_ = dataflow.InsertTaskEvent(req.TaskID, userID, "deleted")
 
 	// Commit transaction
 	if err := tx.Commit(); err != nil {
