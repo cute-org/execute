@@ -35,11 +35,11 @@ type updateGroupReq struct {
 }
 
 type groupInfoResp struct {
-	Name        string    `json:"name"`
-	Code        string    `json:"code"`
-	Points      int       `json:"points"`
-	PointsScore int       `json:"pointsScore"`
-	Meeting     time.Time `json:"meeting,omitempty"`
+	Name        string     `json:"name"`
+	Code        string     `json:"code"`
+	Points      int        `json:"points"`
+	PointsScore int        `json:"pointsScore"`
+	Meeting     *time.Time `json:"meeting,omitempty"`
 }
 
 type setMeetingReq struct {
@@ -281,7 +281,7 @@ func GetGroupInfoHandler(w http.ResponseWriter, r *http.Request) {
 		PointsScore: pointsScore,
 	}
 	if meeting.Valid {
-		resp.Meeting = meeting.Time
+		resp.Meeting = &meeting.Time
 	}
 
 	w.Header().Set("Content-Type", "application/json")
